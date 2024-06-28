@@ -1,0 +1,17 @@
+{
+  "name": "1_generate-keypair",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@solana-developers/helpers": "^2.3.0",
+    "@solana/web3.js": "^1.93.4",
+    "esrun": "^3.2.26",
+    "typescript": "^5.5.2"
+  }
+}
