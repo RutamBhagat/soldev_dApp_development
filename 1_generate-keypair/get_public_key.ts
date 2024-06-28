@@ -1,13 +1,5 @@
-import {
-  getHashedNameSync,
-  getNameAccountKeySync,
-  NameRegistryState,
-} from '@bonfida/spl-name-service';
-import {
-  clusterApiUrl,
-  Connection,
-  PublicKey,
-} from '@solana/web3.js';
+import { getHashedNameSync, getNameAccountKeySync, NameRegistryState } from "@bonfida/spl-name-service";
+import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 
 export const get_public_key = async (input: string) => {
   if (!input) {
@@ -28,11 +20,11 @@ export const get_public_key = async (input: string) => {
       );
       const owner = await NameRegistryState.retrieve(connection, nameAccountKey);
       const publicKey = owner.registry.owner.toBase58();
-      console.log(`✅ The public key for the domain ${domain} is ${publicKey}!`);
+      console.log(`✅ The public key for the domain ${domain} is ${publicKey}`);
       return publicKey;
     }
     return input;
   } catch (error) {
-    throw new Error(`❌ Failed to resolve the input ${input}!`);
+    throw new Error(`❌ Failed to resolve the input ${input}`);
   }
 };

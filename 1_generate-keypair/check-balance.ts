@@ -1,10 +1,6 @@
-import {
-  Connection,
-  LAMPORTS_PER_SOL,
-  PublicKey,
-} from '@solana/web3.js';
+import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
-import { get_public_key } from './get_public_key';
+import { get_public_key } from "./get_public_key";
 
 const suppliedPublicKey = process.argv[2];
 const resolvedPublicKey = await get_public_key(suppliedPublicKey);
