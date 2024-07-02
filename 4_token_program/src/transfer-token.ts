@@ -5,7 +5,9 @@ import {
 } from "@solana-developers/helpers";
 import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { getOrCreateAssociatedTokenAccount, transfer } from "@solana/spl-token";
-const connection = new Connection(clusterApiUrl("devnet"));
+const connection = new Connection(clusterApiUrl("devnet"), {
+  commitment: "confirmed",
+});
 
 const sender = getKeypairFromEnvironment("SECRET_KEY");
 

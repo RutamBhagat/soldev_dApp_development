@@ -6,7 +6,9 @@ import {
 } from "@solana-developers/helpers";
 import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 
-const connection = new Connection(clusterApiUrl("devnet"));
+const connection = new Connection(clusterApiUrl("devnet"), {commitment: "confirmed"});{
+  commitment: "confirmed",
+});
 
 // Our token has two decimal places
 const MINOR_UNITS_PER_MAJOR_UNITS = Math.pow(10, 2);
