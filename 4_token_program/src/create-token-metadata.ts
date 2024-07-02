@@ -19,7 +19,7 @@ const metadataData = {
   name: "DragonRaidenShogun",
   symbol: "DRS",
   // Arweave / IPFS / Pinata etc link using metaplex standard for off-chain data
-  uri: "ipfs://QmTVc2swsqinDZ8aPGNgGHF8NNRjZsj5RCuGEstGfkGepM",
+  uri: "https://violet-flexible-bear-348.mypinata.cloud/ipfs/QmY1CAntZQJ3rykyR5yhdnEzQLHzKiRk4ezKjUjehrSvDH",
   sellerFeeBasisPoints: 0,
   creators: null,
   collection: null,
