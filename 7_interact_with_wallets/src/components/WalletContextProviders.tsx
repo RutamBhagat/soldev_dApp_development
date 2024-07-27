@@ -2,25 +2,22 @@
 
 import "@solana/wallet-adapter-react-ui/styles.css";
 
-import { AlphaWalletAdapter, LedgerWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
+import * as web3 from "@solana/web3.js";
+
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
-import { FC, useMemo } from "react";
 
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import { useMemo } from "react";
 
-type Props = {
-  children?: React.ReactNode;
-};
-
-export default function Providers({
+export default function WalletContextProviders({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   //input your RPC as your endpoint value
-  const endpoint = "https://api-devnet.helius.xyz";
+  const endpoint = web3.clusterApiUrl("devnet");
 
-  const wallets = useMemo(() => [new SolflareWalletAdapter(), new AlphaWalletAdapter(), new LedgerWalletAdapter()], []);
+  const wallets = useMemo(() => [], []);
 
   return (
     <ConnectionProvider endpoint={endpoint}>
