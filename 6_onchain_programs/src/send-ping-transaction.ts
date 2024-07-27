@@ -13,8 +13,10 @@ const newBalance = await airdropIfRequired(
   connection,
   payer.publicKey,
   1 * web3.LAMPORTS_PER_SOL,
-  0.5 * web3.LAMPORTS_PER_SOL
+  0.25 * web3.LAMPORTS_PER_SOL
 );
+
+console.log("newBalance", newBalance);
 
 const transaction = new web3.Transaction();
 const programId = new web3.PublicKey(PING_PROGRAM_ADDRESS);
