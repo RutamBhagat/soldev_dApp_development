@@ -16,13 +16,13 @@ console.log(`suppliedToPubkey: ${suppliedToPubkey}`);
 
 const toPubkey = new PublicKey(suppliedToPubkey);
 
-const connection = new Connection("http://localhost:8899", "confirmed");
+const connection = new Connection("https://api.devnet.solana.com", "confirmed");
 
 console.log(`✅ Loaded our own keypair, the destination public key, and connected to Solana`);
 
 const transaction = new Transaction();
 
-const LAMPORTS_TO_SEND = 5000;
+const LAMPORTS_TO_SEND = 1;
 
 const sendSolInstruction = SystemProgram.transfer({
   fromPubkey: senderKeypair.publicKey,

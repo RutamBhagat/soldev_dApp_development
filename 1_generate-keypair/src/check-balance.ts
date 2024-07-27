@@ -12,9 +12,9 @@ try {
 
   const balanceInLamports = await connection.getBalance(publicKey);
 
-  const balanceInSOL = balanceInLamports / LAMPORTS_PER_SOL;
+  const balanceInSOL = balanceInLamports / LAMPORTS_PER_SOL; // basically dividing by 1 billion
 
-  console.log(`✅ Finished! The balance for the wallet at address ${publicKey} is ${balanceInSOL}!`);
+  console.log(`✅ Finished! The balance for the wallet at address ${publicKey} is ${balanceInSOL} SOL`);
 } catch (error) {
-  console.error(`❌ Failed to check the balance for the wallet at address ${suppliedPublicKey}!`);
+  console.error(`❌ Failed to check the balance for the wallet at address ${suppliedPublicKey}`);
 }
