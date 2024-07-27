@@ -1,4 +1,4 @@
-import { Signer } from "@solana/web3.js";
+import { Keypair, Signer } from "@solana/web3.js";
 
 export interface NftData {
   name: string;
@@ -34,4 +34,16 @@ export const updateNftData = {
   description: "Update Description",
   sellerFeeBasisPoints: 100,
   imageFile: "success.png",
+};
+
+export const collectionNftDataFunc = (user: Keypair): CollectionNftData => {
+  return {
+    name: "TestCollectionNFT",
+    symbol: "TEST",
+    description: "Test Description Collection",
+    sellerFeeBasisPoints: 100,
+    imageFile: "success.png",
+    isCollection: true,
+    collectionAuthority: user,
+  };
 };

@@ -1,7 +1,7 @@
 import { Connection, clusterApiUrl } from "@solana/web3.js";
 import { Metaplex, bundlrStorage, keypairIdentity } from "@metaplex-foundation/js";
+import { collectionNftDataFunc, nftData, updateNftData } from "./types/nftTypes";
 import { createCollectionNft, createNft, updateNftUri, uploadMetadata } from "./util/utils";
-import { nftData, updateNftData } from "./types/nftTypes";
 
 import { initializeKeypair } from "./util/initializeKeypair";
 
@@ -25,15 +25,7 @@ async function main() {
       })
     );
 
-  const collectionNftData = {
-    name: "TestCollectionNFT",
-    symbol: "TEST",
-    description: "Test Description Collection",
-    sellerFeeBasisPoints: 100,
-    imageFile: "success.png",
-    isCollection: true,
-    collectionAuthority: user,
-  };
+  const collectionNftData = collectionNftDataFunc(user);
 
   // upload data for the collection NFT and get the URI for the metadata
   const collectionUri = await uploadMetadata(metaplex, collectionNftData);
