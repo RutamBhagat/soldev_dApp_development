@@ -1,14 +1,15 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardFooter } from "./ui/card";
 import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { useEffect, useState } from "react";
 
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import SolanaBalance from "./SolanaBalance";
 import { toast } from "sonner";
+import { useState } from "react";
 import { z } from "zod";
 
 const amountSchema = z.string().regex(/^\d*\.?\d*$/, { message: "Invalid amount format" });
@@ -31,26 +32,10 @@ export function MintToken() {
   const { publicKey, sendTransaction, signTransaction } = useWallet();
   const { connection } = useConnection();
 
-  const [balance, setBalance] = useState<number | null>(null);
   const [amount, setAmount] = useState("");
   const [tokenMintAddress, setTokenMintAddress] = useState("J2SFddenUcPYrbc4U4EvvNbipAUnQ7hioXrnJo8ce8H3");
   const [ownerAddress, setOwnerAddress] = useState("DCcV7CCDcTeoZwmPph4wqJsobCeN9QMZkYH7WzVy8Z6X");
   const [recipientAddress, setRecipientAddress] = useState("JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd");
-
-  useEffect(() => {
-    const fetchBalance = async () => {
-      if (publicKey) {
-        try {
-          const balance = await connection.getBalance(publicKey);
-          setBalance(balance / LAMPORTS_PER_SOL); // Convert lamports to SOL
-        } catch (error) {
-          console.error("Failed to fetch balance:", error);
-        }
-      }
-    };
-
-    fetchBalance();
-  }, [publicKey, connection]);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -123,10 +108,7 @@ export function MintToken() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>SOL Balance</CardTitle>
-        <CardDescription>{balance !== null ? `${balance} SOL` : "Loading..."}</CardDescription>
-      </CardHeader>
+      <SolanaBalance />
       <CardContent className="grid gap-6">
         <div className="grid gap-2 md:min-w-[500px]">
           <Label htmlFor="address">Token Mint</Label>
