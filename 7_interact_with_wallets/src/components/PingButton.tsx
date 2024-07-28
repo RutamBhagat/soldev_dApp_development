@@ -1,7 +1,10 @@
 import * as web3 from "@solana/web3.js";
 
-import { FC, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+
+import { FC } from "react";
+import React from "react";
+import { toast } from "sonner";
 
 const PROGRAM_ID = "ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa";
 const DATA_ACCOUNT_PUBKEY = "Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod";
@@ -9,8 +12,6 @@ const DATA_ACCOUNT_PUBKEY = "Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod";
 export const PingButton: FC = () => {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
-  const [showPopup, setShowPopup] = useState(false);
-  const [explorerLink, setExplorerLink] = useState("");
 
   const onClick = () => {
     if (!connection || !publicKey) {
@@ -36,8 +37,9 @@ export const PingButton: FC = () => {
     sendTransaction(transaction, connection).then((signature) => {
       const link = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
       console.log(`You can view your transaction on Solana Explorer at:\n${link}`);
-      setExplorerLink(link);
-      setShowPopup(true);
+      toast.success(<SuccessMessage explorerLink={link} />, {
+        duration: 5000, // 5 seconds
+      });
     });
   };
 
@@ -55,29 +57,29 @@ export const PingButton: FC = () => {
           Please connect your wallet
         </div>
       )}
-
-      {showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full">
-            <h2 className="text-2xl font-bold mb-4">Transaction Submitted</h2>
-            <p className="mb-4">You can view your transaction on Solana Explorer:</p>
-            <a
-              href={explorerLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-800 underline block mb-6"
-            >
-              View on Solana Explorer
-            </a>
-            <button
-              onClick={() => setShowPopup(false)}
-              className="w-full p-2 bg-violet-800 text-white rounded hover:bg-violet-900 transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </>
+  );
+};
+
+export const SuccessMessage = ({ explorerLink }: { explorerLink: string }) => {
+  return (
+    <div className="relative w-full h-full">
+      <button
+        onClick={() => toast.dismiss()}
+        className="text-gray-500 hover:text-gray-700 text-2xl focus:outline-none absolute right-0 top-0"
+      >
+        &times;
+      </button>
+      <h2 className="text-2xl font-bold text-green-800 my-2">Transaction Submitted</h2>
+      <p className="text-gray-700 mb-2">You can view your transaction on Solana Explorer:</p>
+      <a
+        href={explorerLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 hover:text-blue-800 underline block mb-4"
+      >
+        View on Solana Explorer
+      </a>
+    </div>
   );
 };
