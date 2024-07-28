@@ -53,6 +53,7 @@ export function MintCreation() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    setValue,
   } = useForm<MintCreationSchema>({
     resolver: zodResolver(mintCreationSchema),
   });
@@ -112,7 +113,7 @@ export function MintCreation() {
       }
 
       setTokenMint(mintPublicKey.toString());
-      reset({ tokenMintAddress: mintPublicKey.toString() });
+      setValue("tokenMintAddress", mintPublicKey.toString()); // Update the form state manually
       toast.success("Token mint created successfully");
     } catch (error) {
       toast.error("Failed to create token mint");
@@ -120,7 +121,7 @@ export function MintCreation() {
     }
   };
 
-  const createTokenAccount = async () => {
+  const createTokenAccount = async (data: MintCreationSchema) => {
     if (!publicKey || !tokenMint || !tokenAccountOwner) {
       toast.error("Invalid input");
       return;
@@ -210,7 +211,7 @@ export function MintCreation() {
       <CardFooter className="flex flex-col md:flex-row md:space-x-2 space-y-2 md:space-y-0">
         <Button
           className="w-full bg-violet-900 hover:bg-violet-950"
-          onClick={handleSubmit(createMint)}
+          onClick={createMint} // Directly call createMint function
           disabled={isSubmitting}
         >
           Create Mint
