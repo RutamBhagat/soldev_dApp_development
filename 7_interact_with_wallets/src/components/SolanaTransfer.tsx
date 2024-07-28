@@ -3,7 +3,6 @@
 import { Card, CardContent, CardFooter } from "./ui/card";
 import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { useEffect, useState } from "react";
 
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";

@@ -1,7 +1,13 @@
 "use client";
 
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+  createMintToInstruction,
+  getAssociatedTokenAddress,
+} from "@solana/spl-token";
 import { Card, CardContent, CardFooter } from "./ui/card";
-import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { ConfirmOptions, PublicKey, Transaction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { Button } from "./ui/button";
@@ -10,6 +16,7 @@ import { Label } from "./ui/label";
 import SolanaBalance from "./SolanaBalance";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -50,41 +57,47 @@ export function MintToken() {
     resolver: zodResolver(mintTokenSchema),
   });
 
-  const onSubmit = async (data: MintTokenSchema) => {
-    if (!publicKey || !signTransaction || !sendTransaction) return;
+  const [tokenMint, setTokenMint] = useState<string | null>(null);
+  const [recipientAddress, setRecipientAddress] = useState<string | null>(null);
+  const [amount, setAmount] = useState<string | null>(null);
 
-    const toPubkey = new PublicKey(data.recipientAddress);
-    const lamportsToSend = parseFloat(data.amount) * LAMPORTS_PER_SOL;
+  const onSubmit = async (data: MintTokenSchema) => {
+    if (!publicKey || !signTransaction || !sendTransaction) {
+      toast.error("Wallet not connected");
+      return;
+    }
+
+    const tokenMintPublicKey = new PublicKey(data.tokenMintAddress);
+    const recipientPublicKey = new PublicKey(data.recipientAddress);
+    const amountToMint = parseFloat(data.amount) * Math.pow(10, 9); // Assuming 9 decimals for the token
 
     try {
-      // Fetch the latest blockhash and fee calculator
-      const { blockhash } = await connection.getLatestBlockhash();
-
-      const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey,
-          lamports: lamportsToSend,
-        })
+      const associatedTokenAddress = await getAssociatedTokenAddress(
+        tokenMintPublicKey,
+        recipientPublicKey,
+        false,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
       );
 
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = publicKey;
+      const transaction = new Transaction().add(
+        createMintToInstruction(
+          tokenMintPublicKey,
+          associatedTokenAddress,
+          publicKey,
+          amountToMint,
+          [],
+          TOKEN_PROGRAM_ID
+        )
+      );
 
-      const signedTransaction = await signTransaction(transaction);
-      const signature = await sendTransaction(signedTransaction, connection);
-      console.log(`Transaction signature: ${signature}`);
+      const signature = await sendTransaction(transaction, connection, { signers: [] });
+      await connection.confirmTransaction(signature, "processed");
 
-      // Show success toast
-      toast.success("Transaction sent successfully!", {
-        duration: 3000, // 3 seconds
-      });
-
+      toast.success("Tokens minted successfully");
       reset();
     } catch (error) {
       console.error("Transaction failed:", error);
-
-      // Show error toast
       toast.error("Transaction failed. Please try again.");
     }
   };
@@ -100,6 +113,7 @@ export function MintToken() {
             placeholder="J2SFddenUcPYrbc4U4EvvNbipAUnQ7hioXrnJo8ce8H3"
             {...register("tokenMintAddress")}
             className={errors.tokenMintAddress ? "border-red-500" : ""}
+            onChange={(e) => setTokenMint(e.target.value)}
           />
           {errors.tokenMintAddress && <span className="text-red-500">{errors.tokenMintAddress.message}</span>}
         </div>
@@ -110,6 +124,7 @@ export function MintToken() {
             placeholder="JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd"
             {...register("recipientAddress")}
             className={errors.recipientAddress ? "border-red-500" : ""}
+            onChange={(e) => setRecipientAddress(e.target.value)}
           />
           {errors.recipientAddress && <span className="text-red-500">{errors.recipientAddress.message}</span>}
         </div>
@@ -120,6 +135,7 @@ export function MintToken() {
             placeholder="0.01"
             {...register("amount")}
             className={errors.amount ? "border-red-500" : ""}
+            onChange={(e) => setAmount(e.target.value)}
           />
           {errors.amount && <span className="text-red-500">{errors.amount.message}</span>}
         </div>

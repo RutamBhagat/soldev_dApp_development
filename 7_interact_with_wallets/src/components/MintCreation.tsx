@@ -1,7 +1,15 @@
 "use client";
 
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  MINT_SIZE,
+  TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccountInstruction,
+  createInitializeMintInstruction,
+  getAssociatedTokenAddress,
+} from "@solana/spl-token";
 import { Card, CardContent, CardFooter } from "./ui/card";
-import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { Button } from "./ui/button";
@@ -10,6 +18,7 @@ import { Label } from "./ui/label";
 import SolanaBalance from "./SolanaBalance";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -29,14 +38,14 @@ const addressSchema = z
   );
 
 const mintCreationSchema = z.object({
-  tokenMintAddress: addressSchema,
-  ownerAddress: addressSchema,
+  tokenMintAddress: addressSchema.optional(),
+  ownerAddress: addressSchema.optional(),
 });
 
 type MintCreationSchema = z.infer<typeof mintCreationSchema>;
 
 export function MintCreation() {
-  const { publicKey, sendTransaction, signTransaction } = useWallet();
+  const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
 
   const {
@@ -48,44 +57,86 @@ export function MintCreation() {
     resolver: zodResolver(mintCreationSchema),
   });
 
-  const onSubmit = async (data: MintCreationSchema) => {
-    if (!publicKey || !signTransaction || !sendTransaction) return;
+  const [tokenMint, setTokenMint] = useState<string | null>(null);
+  const [tokenAccountOwner, setTokenAccountOwner] = useState<string | null>(null);
+
+  const createMint = async () => {
+    if (!publicKey) {
+      toast.error("Wallet not connected");
+      return;
+    }
 
     try {
-      // Implement the logic for creating the mint and token account here
-      // For example:
-      const toPubkey = new PublicKey(data.ownerAddress);
-      const lamportsToSend = 0; // Adjust as needed
+      const mintKeypair = Keypair.generate();
+      const mintPublicKey = mintKeypair.publicKey;
 
-      // Fetch the latest blockhash and fee calculator
-      const { blockhash } = await connection.getLatestBlockhash();
+      const lamports = await connection.getMinimumBalanceForRentExemption(MINT_SIZE);
 
       const transaction = new Transaction().add(
-        SystemProgram.transfer({
+        SystemProgram.createAccount({
           fromPubkey: publicKey,
-          toPubkey,
-          lamports: lamportsToSend,
-        })
+          newAccountPubkey: mintPublicKey,
+          space: MINT_SIZE,
+          lamports,
+          programId: TOKEN_PROGRAM_ID,
+        }),
+        createInitializeMintInstruction(
+          mintPublicKey,
+          0, // decimals
+          publicKey,
+          publicKey,
+          TOKEN_PROGRAM_ID
+        )
       );
 
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = publicKey;
+      const signature = await sendTransaction(transaction, connection, { signers: [mintKeypair] });
+      await connection.confirmTransaction(signature, "processed");
 
-      const signedTransaction = await signTransaction(transaction);
-      const signature = await sendTransaction(signedTransaction, connection);
-      console.log(`Transaction signature: ${signature}`);
-
-      // Show success toast
-      toast.success("Transaction sent successfully!", {
-        duration: 3000, // 3 seconds
-      });
-
-      reset();
+      setTokenMint(mintPublicKey.toString());
+      reset({ tokenMintAddress: mintPublicKey.toString() });
+      toast.success("Token mint created successfully");
     } catch (error) {
-      console.error("Transaction failed:", error);
+      toast.error("Failed to create token mint");
+      console.error(error);
+    }
+  };
 
-      // Show error toast
-      toast.error("Transaction failed. Please try again.");
+  const createTokenAccount = async () => {
+    if (!publicKey || !tokenMint || !tokenAccountOwner) {
+      toast.error("Invalid input");
+      return;
+    }
+
+    try {
+      const tokenMintPublicKey = new PublicKey(tokenMint);
+      const tokenAccountOwnerPublicKey = new PublicKey(tokenAccountOwner);
+
+      const associatedTokenAddress = await getAssociatedTokenAddress(
+        tokenMintPublicKey,
+        tokenAccountOwnerPublicKey,
+        false,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+
+      const transaction = new Transaction().add(
+        createAssociatedTokenAccountInstruction(
+          publicKey,
+          associatedTokenAddress,
+          tokenAccountOwnerPublicKey,
+          tokenMintPublicKey,
+          TOKEN_PROGRAM_ID,
+          ASSOCIATED_TOKEN_PROGRAM_ID
+        )
+      );
+
+      const signature = await sendTransaction(transaction, connection);
+      await connection.confirmTransaction(signature, "processed");
+
+      toast.success("Token account created successfully");
+    } catch (error) {
+      toast.error("Failed to create token account");
+      console.error(error);
     }
   };
 
@@ -100,6 +151,7 @@ export function MintCreation() {
             placeholder="J2SFddenUcPYrbc4U4EvvNbipAUnQ7hioXrnJo8ce8H3"
             {...register("tokenMintAddress")}
             className={errors.tokenMintAddress ? "border-red-500" : ""}
+            onChange={(e) => setTokenMint(e.target.value)}
           />
           {errors.tokenMintAddress && <span className="text-red-500">{errors.tokenMintAddress.message}</span>}
         </div>
@@ -110,6 +162,7 @@ export function MintCreation() {
             placeholder="JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd"
             {...register("ownerAddress")}
             className={errors.ownerAddress ? "border-red-500" : ""}
+            onChange={(e) => setTokenAccountOwner(e.target.value)}
           />
           {errors.ownerAddress && <span className="text-red-500">{errors.ownerAddress.message}</span>}
         </div>
@@ -117,14 +170,14 @@ export function MintCreation() {
       <CardFooter className="flex flex-col md:flex-row md:space-x-2 space-y-2 md:space-y-0">
         <Button
           className="w-full bg-violet-900 hover:bg-violet-950"
-          onClick={handleSubmit(onSubmit)}
+          onClick={handleSubmit(createMint)}
           disabled={isSubmitting}
         >
           Create Mint
         </Button>
         <Button
           className="w-full bg-violet-900 hover:bg-violet-950"
-          onClick={handleSubmit(onSubmit)}
+          onClick={handleSubmit(createTokenAccount)}
           disabled={isSubmitting}
         >
           Create Token Account
