@@ -1,13 +1,13 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { PublicKey } from "@solana/web3.js";
 
 export function PaymentMethod() {
   const [amount, setAmount] = useState("");
@@ -24,7 +24,7 @@ export function PaymentMethod() {
       if (publicKey) {
         try {
           const balance = await connection.getBalance(publicKey);
-          setBalance(balance / 10 ** 9); // Convert lamports to SOL
+          setBalance(balance / LAMPORTS_PER_SOL); // Convert lamports to SOL
         } catch (error) {
           console.error("Failed to fetch balance:", error);
         }
