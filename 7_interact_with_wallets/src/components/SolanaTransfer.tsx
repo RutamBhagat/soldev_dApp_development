@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardFooter } from "./ui/card";
 import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import SolanaBalance from "./SolanaBalance";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -39,23 +40,6 @@ type TransferSchema = z.infer<typeof transferSchema>;
 export function SolanaTransfer() {
   const { publicKey, sendTransaction, signTransaction } = useWallet();
   const { connection } = useConnection();
-
-  const [balance, setBalance] = useState<number | null>(null);
-
-  useEffect(() => {
-    const fetchBalance = async () => {
-      if (publicKey) {
-        try {
-          const balance = await connection.getBalance(publicKey);
-          setBalance(balance / LAMPORTS_PER_SOL); // Convert lamports to SOL
-        } catch (error) {
-          console.error("Failed to fetch balance:", error);
-        }
-      }
-    };
-
-    fetchBalance();
-  }, [publicKey, connection]);
 
   const {
     register,
@@ -107,10 +91,7 @@ export function SolanaTransfer() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>SOL Balance</CardTitle>
-        <CardDescription>{balance !== null ? `${balance} SOL` : "Loading..."}</CardDescription>
-      </CardHeader>
+      <SolanaBalance />
       <CardContent className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="amount">Amount to send (in SOL)</Label>
