@@ -9,6 +9,23 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const amountSchema = z.string().regex(/^\d*\.?\d*$/, { message: "Invalid amount format" });
+const addressSchema = z
+  .string()
+  .length(44, { message: "Invalid Solana address format" })
+  .refine(
+    (value) => {
+      try {
+        new PublicKey(value);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    },
+    { message: "Invalid Solana address format" }
+  );
 
 export function PaymentMethod() {
   const [amount, setAmount] = useState("");
@@ -37,25 +54,23 @@ export function PaymentMethod() {
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (/^\d*\.?\d*$/.test(value)) {
+    const result = amountSchema.safeParse(value);
+    if (result.success) {
       setAmount(value);
       setAmountError("");
     } else {
-      setAmountError("Invalid amount format");
+      setAmountError(result.error.errors[0].message);
     }
   };
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setAddress(value);
-    try {
-      if (value.length !== 44) {
-        throw new Error("Invalid length");
-      }
-      new PublicKey(value);
+    const result = addressSchema.safeParse(value);
+    if (result.success) {
+      setAddress(value);
       setAddressError("");
-    } catch (error) {
-      setAddressError("Invalid Solana address format");
+    } else {
+      setAddressError(result.error.errors[0].message);
     }
   };
 
@@ -67,7 +82,7 @@ export function PaymentMethod() {
 
     try {
       // Fetch the latest blockhash and fee calculator
-      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      const { blockhash } = await connection.getLatestBlockhash();
 
       const transaction = new Transaction().add(
         SystemProgram.transfer({
@@ -89,9 +104,7 @@ export function PaymentMethod() {
         duration: 5000, // 5 seconds
       });
     } catch (error) {
-      console.error("Transaction failed:", error, {
-        duration: 5000, // 5 seconds
-      });
+      console.error("Transaction failed:", error);
 
       // Show error toast
       toast.error("Transaction failed. Please try again.");
