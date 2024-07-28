@@ -1,3 +1,5 @@
+"use client";
+
 import * as web3 from "@solana/web3.js";
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
