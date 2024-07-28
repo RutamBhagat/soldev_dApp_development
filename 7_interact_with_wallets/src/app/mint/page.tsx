@@ -1,3 +1,4 @@
+import { MintTabs } from "@/components/MintTabs";
 import { MintToken } from "@/components/MintToken";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +11,7 @@ export default function TransferPage() {
     <main className="flex items-center justify-center min-h-screen">
       <div className="border hover:border-slate-900 rounded">
         <Container>
-          <MintToken />
+          <MintTabs />
         </Container>
       </div>
     </main>

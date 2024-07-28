@@ -17,8 +17,8 @@ const examples = [
     href: "/ping",
   },
   {
-    name: "Mint Token",
-    href: "/mint-token",
+    name: "Mint",
+    href: "/mint",
   },
 ];
 

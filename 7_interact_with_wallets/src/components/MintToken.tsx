@@ -124,7 +124,7 @@ export function MintToken() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Balance</CardTitle>
+        <CardTitle>SOL Balance</CardTitle>
         <CardDescription>{balance !== null ? `${balance} SOL` : "Loading..."}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6">
@@ -164,7 +164,7 @@ export function MintToken() {
       </CardContent>
       <CardFooter>
         <Button className="w-full bg-gray-900" onClick={handleSend} disabled={!!amountError || !!addressError}>
-          Send
+          Mint Tokens
         </Button>
       </CardFooter>
     </Card>
