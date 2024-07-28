@@ -41,13 +41,13 @@ export const PingButton: FC = () => {
         const link = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
         console.log(`You can view your transaction on Solana Explorer at:\n${link}`);
         toast.success(<SuccessMessage explorerLink={link} />, {
-          duration: 5000, // 5 seconds
+          duration: 3000, // 3 seconds
         });
       })
       .catch((error) => {
         console.error("Transaction failed:", error);
         toast.error("Transaction failed. Please try again.", {
-          duration: 5000, // 5 seconds
+          duration: 3000, // 3 seconds
         });
       });
   };

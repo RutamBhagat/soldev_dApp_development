@@ -101,7 +101,7 @@ export function PaymentMethod() {
 
       // Show success toast
       toast.success("Transaction sent successfully!", {
-        duration: 5000, // 5 seconds
+        duration: 3000, // 3 seconds
       });
     } catch (error) {
       console.error("Transaction failed:", error);
@@ -150,7 +150,7 @@ export function PaymentMethod() {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full" onClick={handleSend} disabled={!!amountError || !!addressError}>
+        <Button className="w-full bg-gray-900" onClick={handleSend} disabled={!!amountError || !!addressError}>
           Send
         </Button>
       </CardFooter>
