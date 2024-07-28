@@ -10,7 +10,15 @@ import {
   getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import { Card, CardContent, CardFooter } from "./ui/card";
-import { Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import {
+  Keypair,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  TransactionConfirmationStrategy,
+  TransactionMessage,
+  VersionedTransaction,
+} from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { Button } from "./ui/button";
@@ -73,25 +81,46 @@ export function MintCreation() {
 
       const lamports = await connection.getMinimumBalanceForRentExemption(MINT_SIZE);
 
-      const transaction = new Transaction().add(
-        SystemProgram.createAccount({
-          fromPubkey: publicKey,
-          newAccountPubkey: mintPublicKey,
-          space: MINT_SIZE,
-          lamports,
-          programId: TOKEN_PROGRAM_ID,
-        }),
-        createInitializeMintInstruction(
-          mintPublicKey,
-          0, // decimals
-          publicKey,
-          publicKey,
-          TOKEN_PROGRAM_ID
-        )
+      const createAccountInstruction = SystemProgram.createAccount({
+        fromPubkey: publicKey,
+        newAccountPubkey: mintPublicKey,
+        space: MINT_SIZE,
+        lamports,
+        programId: TOKEN_PROGRAM_ID,
+      });
+
+      const initializeMintInstruction = createInitializeMintInstruction(
+        mintPublicKey,
+        0, // decimals
+        publicKey,
+        publicKey,
+        TOKEN_PROGRAM_ID
       );
 
-      const signature = await sendTransaction(transaction, connection, { signers: [mintKeypair] });
-      await connection.confirmTransaction(signature, "processed");
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+      const messageV0 = new TransactionMessage({
+        payerKey: publicKey,
+        recentBlockhash: blockhash,
+        instructions: [createAccountInstruction, initializeMintInstruction],
+      }).compileToV0Message();
+
+      const transaction = new VersionedTransaction(messageV0);
+      transaction.sign([mintKeypair]);
+
+      const signature = await sendTransaction(transaction, connection);
+
+      const confirmationStrategy: TransactionConfirmationStrategy = {
+        signature,
+        blockhash: blockhash,
+        lastValidBlockHeight: lastValidBlockHeight,
+      };
+
+      const confirmation = await connection.confirmTransaction(confirmationStrategy);
+
+      if (confirmation.value.err) {
+        throw new Error("Transaction failed to confirm");
+      }
 
       setTokenMint(mintPublicKey.toString());
       reset({ tokenMintAddress: mintPublicKey.toString() });
@@ -120,19 +149,38 @@ export function MintCreation() {
         ASSOCIATED_TOKEN_PROGRAM_ID
       );
 
-      const transaction = new Transaction().add(
-        createAssociatedTokenAccountInstruction(
-          publicKey, // payer
-          associatedTokenAddress,
-          tokenAccountOwnerPublicKey,
-          tokenMintPublicKey,
-          TOKEN_PROGRAM_ID,
-          ASSOCIATED_TOKEN_PROGRAM_ID
-        )
+      const instruction = createAssociatedTokenAccountInstruction(
+        publicKey, // payer
+        associatedTokenAddress,
+        tokenAccountOwnerPublicKey,
+        tokenMintPublicKey,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
       );
 
+      const { blockhash } = await connection.getLatestBlockhash();
+
+      const messageV0 = new TransactionMessage({
+        payerKey: publicKey,
+        recentBlockhash: blockhash,
+        instructions: [instruction],
+      }).compileToV0Message();
+
+      const transaction = new VersionedTransaction(messageV0);
+
       const signature = await sendTransaction(transaction, connection);
-      await connection.confirmTransaction(signature, "confirmed");
+
+      const confirmationStrategy: TransactionConfirmationStrategy = {
+        signature,
+        blockhash: blockhash,
+        lastValidBlockHeight: await connection.getBlockHeight(),
+      };
+
+      const confirmation = await connection.confirmTransaction(confirmationStrategy);
+
+      if (confirmation.value.err) {
+        throw new Error("Transaction failed to confirm");
+      }
 
       toast.success("Token account created successfully");
       console.log("Associated Token Account:", associatedTokenAddress.toString());
