@@ -16,6 +16,10 @@ const examples = [
     name: "Ping",
     href: "/ping",
   },
+  {
+    name: "Mint Token",
+    href: "/mint-token",
+  },
 ];
 
 interface ExamplesNavProps extends React.HTMLAttributes<HTMLDivElement> {}

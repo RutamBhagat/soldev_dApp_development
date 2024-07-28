@@ -27,7 +27,7 @@ const addressSchema = z
     { message: "Invalid Solana address format" }
   );
 
-export function PaymentMethod() {
+export function MintToken() {
   const { publicKey, sendTransaction, signTransaction } = useWallet();
   const { connection } = useConnection();
 
@@ -126,19 +126,8 @@ export function PaymentMethod() {
         <CardDescription>{balance !== null ? `${balance} SOL` : "Loading..."}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6">
-        <div className="grid gap-2">
-          <Label htmlFor="amount">Amount to send (in SOL)</Label>
-          <Input
-            id="amount"
-            placeholder="0.01"
-            value={amount}
-            onChange={handleAmountChange}
-            className={amountError ? "border-red-500" : ""}
-          />
-          {amountError && <span className="text-red-500">{amountError}</span>}
-        </div>
         <div className="grid gap-2 md:min-w-[500px]">
-          <Label htmlFor="address">Send SOL to (recepient address)</Label>
+          <Label htmlFor="address">Recipient Address</Label>
           <Input
             id="address"
             placeholder="JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd"
@@ -147,6 +136,17 @@ export function PaymentMethod() {
             className={addressError ? "border-red-500" : ""}
           />
           {addressError && <span className="text-red-500">{addressError}</span>}
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="amount">Amount of tokens to mint</Label>
+          <Input
+            id="amount"
+            placeholder="0.01"
+            value={amount}
+            onChange={handleAmountChange}
+            className={amountError ? "border-red-500" : ""}
+          />
+          {amountError && <span className="text-red-500">{amountError}</span>}
         </div>
       </CardContent>
       <CardFooter>

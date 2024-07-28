@@ -1,4 +1,4 @@
-import { SolanaTransfer } from "@/components/SolanaTransfer";
+import { MintToken } from "@/components/MintToken";
 import { cn } from "@/lib/utils";
 
 function Container({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
@@ -10,7 +10,7 @@ export default function TransferPage() {
     <main className="flex items-center justify-center min-h-screen">
       <div className="border hover:border-slate-900 rounded">
         <Container>
-          <SolanaTransfer />
+          <MintToken />
         </Container>
       </div>
     </main>
