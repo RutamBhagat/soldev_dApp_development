@@ -34,13 +34,20 @@ export const PingButton: FC = () => {
     });
 
     transaction.add(instruction);
-    sendTransaction(transaction, connection).then((signature) => {
-      const link = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
-      console.log(`You can view your transaction on Solana Explorer at:\n${link}`);
-      toast.success(<SuccessMessage explorerLink={link} />, {
-        duration: 5000, // 5 seconds
+    sendTransaction(transaction, connection)
+      .then((signature) => {
+        const link = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
+        console.log(`You can view your transaction on Solana Explorer at:\n${link}`);
+        toast.success(<SuccessMessage explorerLink={link} />, {
+          duration: 5000, // 5 seconds
+        });
+      })
+      .catch((error) => {
+        console.error("Transaction failed:", error);
+        toast.error("Transaction failed. Please try again.", {
+          duration: 5000, // 5 seconds
+        });
       });
-    });
   };
 
   return (
