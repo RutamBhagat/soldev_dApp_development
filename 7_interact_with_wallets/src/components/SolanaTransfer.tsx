@@ -9,7 +9,9 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const amountSchema = z.string().regex(/^\d*\.?\d*$/, { message: "Invalid amount format" });
 const addressSchema = z
@@ -27,13 +29,18 @@ const addressSchema = z
     { message: "Invalid Solana address format" }
   );
 
+const transferSchema = z.object({
+  amount: amountSchema,
+  address: addressSchema,
+});
+
+type TransferSchema = z.infer<typeof transferSchema>;
+
 export function SolanaTransfer() {
   const { publicKey, sendTransaction, signTransaction } = useWallet();
   const { connection } = useConnection();
 
   const [balance, setBalance] = useState<number | null>(null);
-  const [amount, setAmount] = useState("");
-  const [address, setAddress] = useState("JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd");
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -50,35 +57,20 @@ export function SolanaTransfer() {
     fetchBalance();
   }, [publicKey, connection]);
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const result = amountSchema.safeParse(value);
-    if (result.success) {
-      setAmount(value);
-    }
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<TransferSchema>({
+    resolver: zodResolver(transferSchema),
+  });
 
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const result = addressSchema.safeParse(value);
-    if (result.success) {
-      setAddress(value);
-    }
-  };
+  const onSubmit = async (data: TransferSchema) => {
+    if (!publicKey || !signTransaction || !sendTransaction) return;
 
-  const handleSend = async () => {
-    if (!publicKey || !address || !amount || !signTransaction || !sendTransaction) return;
-
-    const amountResult = amountSchema.safeParse(amount);
-    const addressResult = addressSchema.safeParse(address);
-
-    if (!amountResult.success || !addressResult.success) {
-      toast.error("Please fix the errors and try again.");
-      return;
-    }
-
-    const toPubkey = new PublicKey(address);
-    const lamportsToSend = parseFloat(amount) * LAMPORTS_PER_SOL;
+    const toPubkey = new PublicKey(data.address);
+    const lamportsToSend = parseFloat(data.amount) * LAMPORTS_PER_SOL;
 
     try {
       // Fetch the latest blockhash and fee calculator
@@ -103,6 +95,8 @@ export function SolanaTransfer() {
       toast.success("Transaction sent successfully!", {
         duration: 3000, // 3 seconds
       });
+
+      reset();
     } catch (error) {
       console.error("Transaction failed:", error);
 
@@ -110,14 +104,6 @@ export function SolanaTransfer() {
       toast.error("Transaction failed. Please try again.");
     }
   };
-
-  const amountError = amountSchema.safeParse(amount).success
-    ? ""
-    : amountSchema.safeParse(amount).error?.errors[0]?.message || "Invalid amount format";
-
-  const addressError = addressSchema.safeParse(address).success
-    ? ""
-    : addressSchema.safeParse(address).error?.errors[0]?.message || "Invalid Solana address format";
 
   return (
     <Card>
@@ -131,26 +117,24 @@ export function SolanaTransfer() {
           <Input
             id="amount"
             placeholder="0.01"
-            value={amount}
-            onChange={handleAmountChange}
-            className={amountError ? "border-red-500" : ""}
+            {...register("amount")}
+            className={errors.amount ? "border-red-500" : ""}
           />
-          {amountError && <span className="text-red-500">{amountError}</span>}
+          {errors.amount && <span className="text-red-500">{errors.amount.message}</span>}
         </div>
         <div className="grid gap-2 md:min-w-[500px]">
           <Label htmlFor="address">Send SOL to (recipient address)</Label>
           <Input
             id="address"
             placeholder="JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd"
-            value={address}
-            onChange={handleAddressChange}
-            className={addressError ? "border-red-500" : ""}
+            {...register("address")}
+            className={errors.address ? "border-red-500" : ""}
           />
-          {addressError && <span className="text-red-500">{addressError}</span>}
+          {errors.address && <span className="text-red-500">{errors.address.message}</span>}
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full bg-violet-900" onClick={handleSend} disabled={!!amountError || !!addressError}>
+        <Button className="w-full bg-violet-900" onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>
           Send
         </Button>
       </CardFooter>
