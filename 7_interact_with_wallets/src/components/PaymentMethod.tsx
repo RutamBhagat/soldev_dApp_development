@@ -28,14 +28,12 @@ const addressSchema = z
   );
 
 export function PaymentMethod() {
-  const [amount, setAmount] = useState("");
-  const [address, setAddress] = useState("JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd");
-  const [amountError, setAmountError] = useState("");
-  const [addressError, setAddressError] = useState("");
-  const [balance, setBalance] = useState<number | null>(null);
-
   const { publicKey, sendTransaction, signTransaction } = useWallet();
   const { connection } = useConnection();
+
+  const [balance, setBalance] = useState<number | null>(null);
+  const [amount, setAmount] = useState("");
+  const [address, setAddress] = useState("JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd");
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -57,9 +55,6 @@ export function PaymentMethod() {
     const result = amountSchema.safeParse(value);
     if (result.success) {
       setAmount(value);
-      setAmountError("");
-    } else {
-      setAmountError(result.error.errors[0].message);
     }
   };
 
@@ -68,14 +63,19 @@ export function PaymentMethod() {
     const result = addressSchema.safeParse(value);
     if (result.success) {
       setAddress(value);
-      setAddressError("");
-    } else {
-      setAddressError(result.error.errors[0].message);
     }
   };
 
   const handleSend = async () => {
     if (!publicKey || !address || !amount || !signTransaction || !sendTransaction) return;
+
+    const amountResult = amountSchema.safeParse(amount);
+    const addressResult = addressSchema.safeParse(address);
+
+    if (!amountResult.success || !addressResult.success) {
+      toast.error("Please fix the errors and try again.");
+      return;
+    }
 
     const toPubkey = new PublicKey(address);
     const lamportsToSend = parseFloat(amount) * LAMPORTS_PER_SOL;
@@ -110,6 +110,14 @@ export function PaymentMethod() {
       toast.error("Transaction failed. Please try again.");
     }
   };
+
+  const amountError = amountSchema.safeParse(amount).success
+    ? ""
+    : amountSchema.safeParse(amount).error?.errors[0]?.message || "Invalid amount format";
+
+  const addressError = addressSchema.safeParse(address).success
+    ? ""
+    : addressSchema.safeParse(address).error?.errors[0]?.message || "Invalid Solana address format";
 
   return (
     <Card>
