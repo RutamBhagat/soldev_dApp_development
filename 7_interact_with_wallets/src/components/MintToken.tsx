@@ -33,7 +33,7 @@ export function MintToken() {
 
   const [balance, setBalance] = useState<number | null>(null);
   const [amount, setAmount] = useState("");
-  const [address, setAddress] = useState("JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd");
+  const [recipientAddress, setRecipientAddress] = useState("JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd");
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -62,22 +62,22 @@ export function MintToken() {
     const value = e.target.value;
     const result = addressSchema.safeParse(value);
     if (result.success) {
-      setAddress(value);
+      setRecipientAddress(value);
     }
   };
 
   const handleSend = async () => {
-    if (!publicKey || !address || !amount || !signTransaction || !sendTransaction) return;
+    if (!publicKey || !recipientAddress || !amount || !signTransaction || !sendTransaction) return;
 
     const amountResult = amountSchema.safeParse(amount);
-    const addressResult = addressSchema.safeParse(address);
+    const addressResult = addressSchema.safeParse(recipientAddress);
 
     if (!amountResult.success || !addressResult.success) {
       toast.error("Please fix the errors and try again.");
       return;
     }
 
-    const toPubkey = new PublicKey(address);
+    const toPubkey = new PublicKey(recipientAddress);
     const lamportsToSend = parseFloat(amount) * LAMPORTS_PER_SOL;
 
     try {
@@ -115,9 +115,9 @@ export function MintToken() {
     ? ""
     : amountSchema.safeParse(amount).error?.errors[0]?.message || "Invalid amount format";
 
-  const addressError = addressSchema.safeParse(address).success
+  const addressError = addressSchema.safeParse(recipientAddress).success
     ? ""
-    : addressSchema.safeParse(address).error?.errors[0]?.message || "Invalid Solana address format";
+    : addressSchema.safeParse(recipientAddress).error?.errors[0]?.message || "Invalid Solana address format";
 
   return (
     <Card>
@@ -127,11 +127,22 @@ export function MintToken() {
       </CardHeader>
       <CardContent className="grid gap-6">
         <div className="grid gap-2 md:min-w-[500px]">
+          <Label htmlFor="address">Token Mint</Label>
+          <Input
+            id="address"
+            placeholder="J2SFddenUcPYrbc4U4EvvNbipAUnQ7hioXrnJo8ce8H3"
+            value={recipientAddress}
+            onChange={handleAddressChange}
+            className={addressError ? "border-red-500" : ""}
+          />
+          {addressError && <span className="text-red-500">{addressError}</span>}
+        </div>
+        <div className="grid gap-2 md:min-w-[500px]">
           <Label htmlFor="address">Recipient Address</Label>
           <Input
             id="address"
             placeholder="JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd"
-            value={address}
+            value={recipientAddress}
             onChange={handleAddressChange}
             className={addressError ? "border-red-500" : ""}
           />
