@@ -7,7 +7,7 @@ import {
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
 import { Card, CardContent, CardFooter } from "./ui/card";
-import { ConfirmOptions, PublicKey, Transaction } from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { Button } from "./ui/button";

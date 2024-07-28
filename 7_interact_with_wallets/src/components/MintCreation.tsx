@@ -7,6 +7,7 @@ import {
   createAssociatedTokenAccountInstruction,
   createInitializeMintInstruction,
   getAssociatedTokenAddress,
+  getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import { Card, CardContent, CardFooter } from "./ui/card";
 import { Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
@@ -121,7 +122,7 @@ export function MintCreation() {
 
       const transaction = new Transaction().add(
         createAssociatedTokenAccountInstruction(
-          publicKey,
+          publicKey, // payer
           associatedTokenAddress,
           tokenAccountOwnerPublicKey,
           tokenMintPublicKey,
@@ -131,12 +132,17 @@ export function MintCreation() {
       );
 
       const signature = await sendTransaction(transaction, connection);
-      await connection.confirmTransaction(signature, "processed");
+      await connection.confirmTransaction(signature, "confirmed");
 
       toast.success("Token account created successfully");
+      console.log("Associated Token Account:", associatedTokenAddress.toString());
     } catch (error) {
-      toast.error("Failed to create token account");
-      console.error(error);
+      if (error instanceof Error && error.message.includes("TokenAccountNotFoundError")) {
+        toast.info("Token account already exists");
+      } else {
+        toast.error("Failed to create token account");
+        console.error(error);
+      }
     }
   };
 

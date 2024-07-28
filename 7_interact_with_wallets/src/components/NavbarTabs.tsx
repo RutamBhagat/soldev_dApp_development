@@ -13,12 +13,12 @@ const examples = [
     href: "/",
   },
   {
-    name: "Ping",
-    href: "/ping",
-  },
-  {
     name: "Mint",
     href: "/mint",
+  },
+  {
+    name: "Ping",
+    href: "/ping",
   },
 ];
 
