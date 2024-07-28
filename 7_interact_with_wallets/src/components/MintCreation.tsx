@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { z } from "zod";
 
-const amountSchema = z.string().regex(/^\d*\.?\d*$/, { message: "Invalid amount format" });
 const addressSchema = z
   .string()
   .length(44, { message: "Invalid Solana address format" })
@@ -29,21 +28,9 @@ const addressSchema = z
   );
 
 export function MintCreation() {
-  const { publicKey, sendTransaction, signTransaction } = useWallet();
-  const { connection } = useConnection();
-
-  const [amount, setAmount] = useState("");
   const [tokenMintAddress, setTokenMintAddress] = useState("J2SFddenUcPYrbc4U4EvvNbipAUnQ7hioXrnJo8ce8H3");
   const [ownerAddress, setOwnerAddress] = useState("DCcV7CCDcTeoZwmPph4wqJsobCeN9QMZkYH7WzVy8Z6X");
   const [recipientAddress, setRecipientAddress] = useState("JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd");
-
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const result = amountSchema.safeParse(value);
-    if (result.success) {
-      setAmount(value);
-    }
-  };
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -52,55 +39,6 @@ export function MintCreation() {
       setRecipientAddress(value);
     }
   };
-
-  const handleSend = async () => {
-    if (!publicKey || !recipientAddress || !amount || !signTransaction || !sendTransaction) return;
-
-    const amountResult = amountSchema.safeParse(amount);
-    const addressResult = addressSchema.safeParse(recipientAddress);
-
-    if (!amountResult.success || !addressResult.success) {
-      toast.error("Please fix the errors and try again.");
-      return;
-    }
-
-    const toPubkey = new PublicKey(recipientAddress);
-    const lamportsToSend = parseFloat(amount) * LAMPORTS_PER_SOL;
-
-    try {
-      // Fetch the latest blockhash and fee calculator
-      const { blockhash } = await connection.getLatestBlockhash();
-
-      const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey,
-          lamports: lamportsToSend,
-        })
-      );
-
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = publicKey;
-
-      const signedTransaction = await signTransaction(transaction);
-      const signature = await sendTransaction(signedTransaction, connection);
-      console.log(`Transaction signature: ${signature}`);
-
-      // Show success toast
-      toast.success("Transaction sent successfully!", {
-        duration: 3000, // 3 seconds
-      });
-    } catch (error) {
-      console.error("Transaction failed:", error);
-
-      // Show error toast
-      toast.error("Transaction failed. Please try again.");
-    }
-  };
-
-  const amountError = amountSchema.safeParse(amount).success
-    ? ""
-    : amountSchema.safeParse(amount).error?.errors[0]?.message || "Invalid amount format";
 
   const addressError = addressSchema.safeParse(recipientAddress).success
     ? ""
@@ -111,9 +49,9 @@ export function MintCreation() {
       <SolanaBalance />
       <CardContent className="grid gap-6">
         <div className="grid gap-2 md:min-w-[500px]">
-          <Label htmlFor="address">Token Mint</Label>
+          <Label htmlFor="token-mint">Token Mint</Label>
           <Input
-            id="address"
+            id="token-mint"
             placeholder="J2SFddenUcPYrbc4U4EvvNbipAUnQ7hioXrnJo8ce8H3"
             value={tokenMintAddress}
             onChange={handleAddressChange}
@@ -122,9 +60,9 @@ export function MintCreation() {
           {addressError && <span className="text-red-500">{addressError}</span>}
         </div>
         <div className="grid gap-2 md:min-w-[500px]">
-          <Label htmlFor="address">Recipient Address</Label>
+          <Label htmlFor="token-account-owner">Token Account Owner</Label>
           <Input
-            id="address"
+            id="token-account-owner"
             placeholder="JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd"
             value={recipientAddress}
             onChange={handleAddressChange}
@@ -132,20 +70,9 @@ export function MintCreation() {
           />
           {addressError && <span className="text-red-500">{addressError}</span>}
         </div>
-        <div className="grid gap-2">
-          <Label htmlFor="amount">Amount of tokens to mint</Label>
-          <Input
-            id="amount"
-            placeholder="0.01"
-            value={amount}
-            onChange={handleAmountChange}
-            className={amountError ? "border-red-500" : ""}
-          />
-          {amountError && <span className="text-red-500">{amountError}</span>}
-        </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full bg-gray-900" onClick={handleSend} disabled={!!amountError || !!addressError}>
+        <Button className="w-full bg-gray-900" onClick={() => {}} disabled={!!addressError}>
           Mint Tokens
         </Button>
       </CardFooter>

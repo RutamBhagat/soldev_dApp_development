@@ -111,9 +111,9 @@ export function MintToken() {
       <SolanaBalance />
       <CardContent className="grid gap-6">
         <div className="grid gap-2 md:min-w-[500px]">
-          <Label htmlFor="address">Token Mint</Label>
+          <Label htmlFor="token-mint">Token Mint</Label>
           <Input
-            id="address"
+            id="token-mint"
             placeholder="J2SFddenUcPYrbc4U4EvvNbipAUnQ7hioXrnJo8ce8H3"
             value={tokenMintAddress}
             onChange={handleAddressChange}
@@ -122,9 +122,9 @@ export function MintToken() {
           {addressError && <span className="text-red-500">{addressError}</span>}
         </div>
         <div className="grid gap-2 md:min-w-[500px]">
-          <Label htmlFor="address">Recipient Address</Label>
+          <Label htmlFor="recipient-address">Recipient Address</Label>
           <Input
-            id="address"
+            id="recipient-address"
             placeholder="JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd"
             value={recipientAddress}
             onChange={handleAddressChange}
