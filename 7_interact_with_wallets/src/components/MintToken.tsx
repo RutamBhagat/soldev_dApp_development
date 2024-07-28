@@ -33,6 +33,8 @@ export function MintToken() {
 
   const [balance, setBalance] = useState<number | null>(null);
   const [amount, setAmount] = useState("");
+  const [tokenMintAddress, setTokenMintAddress] = useState("J2SFddenUcPYrbc4U4EvvNbipAUnQ7hioXrnJo8ce8H3");
+  const [ownerAddress, setOwnerAddress] = useState("DCcV7CCDcTeoZwmPph4wqJsobCeN9QMZkYH7WzVy8Z6X");
   const [recipientAddress, setRecipientAddress] = useState("JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd");
 
   useEffect(() => {
@@ -131,7 +133,7 @@ export function MintToken() {
           <Input
             id="address"
             placeholder="J2SFddenUcPYrbc4U4EvvNbipAUnQ7hioXrnJo8ce8H3"
-            value={recipientAddress}
+            value={tokenMintAddress}
             onChange={handleAddressChange}
             className={addressError ? "border-red-500" : ""}
           />
