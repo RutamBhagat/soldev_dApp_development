@@ -54,7 +54,7 @@ export function MintCreation() {
             id="token-mint"
             placeholder="J2SFddenUcPYrbc4U4EvvNbipAUnQ7hioXrnJo8ce8H3"
             value={tokenMintAddress}
-            onChange={handleAddressChange}
+            onChange={() => {}}
             className={addressError ? "border-red-500" : ""}
           />
           {addressError && <span className="text-red-500">{addressError}</span>}

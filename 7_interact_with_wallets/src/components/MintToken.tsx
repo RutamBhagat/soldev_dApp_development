@@ -53,51 +53,6 @@ export function MintToken() {
     }
   };
 
-  const handleSend = async () => {
-    if (!publicKey || !recipientAddress || !amount || !signTransaction || !sendTransaction) return;
-
-    const amountResult = amountSchema.safeParse(amount);
-    const addressResult = addressSchema.safeParse(recipientAddress);
-
-    if (!amountResult.success || !addressResult.success) {
-      toast.error("Please fix the errors and try again.");
-      return;
-    }
-
-    const toPubkey = new PublicKey(recipientAddress);
-    const lamportsToSend = parseFloat(amount) * LAMPORTS_PER_SOL;
-
-    try {
-      // Fetch the latest blockhash and fee calculator
-      const { blockhash } = await connection.getLatestBlockhash();
-
-      const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey,
-          lamports: lamportsToSend,
-        })
-      );
-
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = publicKey;
-
-      const signedTransaction = await signTransaction(transaction);
-      const signature = await sendTransaction(signedTransaction, connection);
-      console.log(`Transaction signature: ${signature}`);
-
-      // Show success toast
-      toast.success("Transaction sent successfully!", {
-        duration: 3000, // 3 seconds
-      });
-    } catch (error) {
-      console.error("Transaction failed:", error);
-
-      // Show error toast
-      toast.error("Transaction failed. Please try again.");
-    }
-  };
-
   const amountError = amountSchema.safeParse(amount).success
     ? ""
     : amountSchema.safeParse(amount).error?.errors[0]?.message || "Invalid amount format";
@@ -116,7 +71,7 @@ export function MintToken() {
             id="token-mint"
             placeholder="J2SFddenUcPYrbc4U4EvvNbipAUnQ7hioXrnJo8ce8H3"
             value={tokenMintAddress}
-            onChange={handleAddressChange}
+            onChange={() => {}}
             className={addressError ? "border-red-500" : ""}
           />
           {addressError && <span className="text-red-500">{addressError}</span>}
@@ -147,7 +102,7 @@ export function MintToken() {
       <CardFooter>
         <Button
           className="w-full bg-violet-900 hover:bg-violet-950"
-          onClick={handleSend}
+          onChange={() => {}}
           disabled={!!amountError || !!addressError}
         >
           Mint Tokens
