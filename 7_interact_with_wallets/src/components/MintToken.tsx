@@ -7,7 +7,7 @@ import {
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
 import { Card, CardContent, CardFooter } from "./ui/card";
-import { PublicKey, Transaction } from "@solana/web3.js";
+import { ConfirmOptions, PublicKey, Transaction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { Button } from "./ui/button";
@@ -92,7 +92,21 @@ export function MintToken() {
       );
 
       const signature = await sendTransaction(transaction, connection, { signers: [] });
-      await connection.confirmTransaction(signature, "processed");
+
+      // Updated confirmation code
+      const confirmOptions: ConfirmOptions = {
+        commitment: "processed",
+        preflightCommitment: "processed",
+      };
+      const latestBlockhash = await connection.getLatestBlockhash();
+      await connection.confirmTransaction(
+        {
+          signature,
+          blockhash: latestBlockhash.blockhash,
+          lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+        },
+        confirmOptions.commitment
+      );
 
       toast.success("Tokens minted successfully");
       reset();
