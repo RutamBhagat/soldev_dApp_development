@@ -150,7 +150,7 @@ export function SolanaTransfer() {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full bg-gray-900" onClick={handleSend} disabled={!!amountError || !!addressError}>
+        <Button className="w-full bg-violet-900" onClick={handleSend} disabled={!!amountError || !!addressError}>
           Send
         </Button>
       </CardFooter>

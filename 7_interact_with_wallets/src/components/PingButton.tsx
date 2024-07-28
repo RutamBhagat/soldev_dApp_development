@@ -57,12 +57,12 @@ export const PingButton: FC = () => {
       {connection && publicKey ? (
         <button
           onClick={onClick}
-          className="p-4 text-lg font-roboto border-0 bg-violet-800 text-white shadow-md hover:bg-violet-900"
+          className="p-4 text-lg font-roboto border-0 bg-violet-900 text-white shadow-md hover:bg-violet-950"
         >
           Ping!
         </button>
       ) : (
-        <div className="p-10 text-lg cursor-default font-roboto border-0 bg-blue-800 text-white shadow-md">
+        <div className="p-10 text-lg cursor-default font-roboto border-0 bg-violet-900 text-white shadow-md">
           Please connect your wallet
         </div>
       )}

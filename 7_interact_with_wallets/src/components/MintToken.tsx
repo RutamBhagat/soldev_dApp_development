@@ -145,7 +145,11 @@ export function MintToken() {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full bg-gray-900" onClick={handleSend} disabled={!!amountError || !!addressError}>
+        <Button
+          className="w-full bg-violet-900 hover:bg-violet-950"
+          onClick={handleSend}
+          disabled={!!amountError || !!addressError}
+        >
           Mint Tokens
         </Button>
       </CardFooter>

@@ -71,9 +71,12 @@ export function MintCreation() {
           {addressError && <span className="text-red-500">{addressError}</span>}
         </div>
       </CardContent>
-      <CardFooter>
-        <Button className="w-full bg-gray-900" onClick={() => {}} disabled={!!addressError}>
-          Mint Tokens
+      <CardFooter className="flex flex-col md:flex-row md:space-x-2 space-y-2 md:space-y-0">
+        <Button className="w-full bg-violet-900 hover:bg-violet-950" onClick={() => {}} disabled={!!addressError}>
+          Create Mint
+        </Button>
+        <Button className="w-full bg-violet-900 hover:bg-violet-950" onClick={() => {}} disabled={!!addressError}>
+          Create Token Account
         </Button>
       </CardFooter>
     </Card>
