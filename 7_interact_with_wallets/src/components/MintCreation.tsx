@@ -23,20 +23,17 @@ import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const addressSchema = z
-  .string()
-  .length(44, { message: "Invalid Solana address format" })
-  .refine(
-    (value) => {
-      try {
-        new PublicKey(value);
-        return true;
-      } catch (error) {
-        return false;
-      }
-    },
-    { message: "Invalid Solana address format" }
-  );
+const addressSchema = z.string().refine(
+  (value) => {
+    try {
+      new PublicKey(value);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  },
+  { message: "Invalid Solana address format" }
+);
 
 const mintCreationSchema = z.object({
   tokenMintAddress: addressSchema.optional(),
@@ -202,7 +199,7 @@ export function MintCreation() {
           <Label htmlFor="token-mint">Token Mint</Label>
           <Input
             id="token-mint"
-            placeholder="J2SFddenUcPYrbc4U4EvvNbipAUnQ7hioXrnJo8ce8H3"
+            placeholder="EB9oi8BZA5RkKxd7VzwUt6JQF2W2UNniCzBj7T3gx44P"
             {...register("tokenMintAddress")}
             className={errors.tokenMintAddress ? "border-red-500" : ""}
             onChange={(e) => setTokenMint(e.target.value)}

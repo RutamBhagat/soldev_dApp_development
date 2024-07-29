@@ -17,7 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 const amountSchema = z.string().regex(/^\d*\.?\d*$/, { message: "Invalid amount format" });
 const addressSchema = z
   .string()
-  .length(44, { message: "Invalid Solana address format" })
+
   .refine(
     (value) => {
       try {

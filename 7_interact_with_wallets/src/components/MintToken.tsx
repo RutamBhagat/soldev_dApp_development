@@ -5,6 +5,7 @@ import {
   TOKEN_PROGRAM_ID,
   createMintToInstruction,
   getAssociatedTokenAddress,
+  getMint,
 } from "@solana/spl-token";
 import { Card, CardContent, CardFooter } from "./ui/card";
 import { ConfirmOptions, PublicKey, Transaction } from "@solana/web3.js";
@@ -22,20 +23,17 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const amountSchema = z.string().regex(/^\d*\.?\d*$/, { message: "Invalid amount format" });
-const addressSchema = z
-  .string()
-  .length(44, { message: "Invalid Solana address format" })
-  .refine(
-    (value) => {
-      try {
-        new PublicKey(value);
-        return true;
-      } catch (error) {
-        return false;
-      }
-    },
-    { message: "Invalid Solana address format" }
-  );
+const addressSchema = z.string().refine(
+  (value) => {
+    try {
+      new PublicKey(value);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  },
+  { message: "Invalid Solana address format" }
+);
 
 const mintTokenSchema = z.object({
   amount: amountSchema,
@@ -70,9 +68,15 @@ export function MintToken() {
 
     const tokenMintPublicKey = new PublicKey(data.tokenMintAddress);
     const recipientPublicKey = new PublicKey(data.recipientAddress);
-    const amountToMint = parseFloat(data.amount) * Math.pow(10, 9); // Assuming 9 decimals for the token
 
     try {
+      // Fetch the mint info to get the decimals
+      const mintInfo = await getMint(connection, tokenMintPublicKey);
+      const decimals = mintInfo.decimals;
+
+      // Calculate the amount to mint using the correct decimals
+      const amountToMint = parseFloat(data.amount) * Math.pow(10, decimals);
+
       const associatedTokenAddress = await getAssociatedTokenAddress(
         tokenMintPublicKey,
         recipientPublicKey,
@@ -94,7 +98,6 @@ export function MintToken() {
 
       const signature = await sendTransaction(transaction, connection, { signers: [] });
 
-      // Updated confirmation code
       const confirmOptions: ConfirmOptions = {
         commitment: "processed",
         preflightCommitment: "processed",
@@ -112,9 +115,8 @@ export function MintToken() {
       const link = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
       console.log(`You can view your transaction on Solana Explorer at:\n${link}`);
 
-      // Show success toast
       toast.success(<SuccessMessage explorerLink={link} transactionMessage={"Tokens Minted"} />, {
-        duration: 3000, // 3 seconds
+        duration: 3000,
       });
       reset();
     } catch (error) {
@@ -131,7 +133,7 @@ export function MintToken() {
           <Label htmlFor="token-mint">Token Mint</Label>
           <Input
             id="token-mint"
-            placeholder="J2SFddenUcPYrbc4U4EvvNbipAUnQ7hioXrnJo8ce8H3"
+            placeholder="EB9oi8BZA5RkKxd7VzwUt6JQF2W2UNniCzBj7T3gx44P"
             {...register("tokenMintAddress")}
             className={errors.tokenMintAddress ? "border-red-500" : ""}
             onChange={(e) => setTokenMint(e.target.value)}
