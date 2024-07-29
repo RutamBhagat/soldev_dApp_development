@@ -8,6 +8,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import SolanaBalance from "./SolanaBalance";
+import SuccessMessage from "./SuccessMessage";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -72,10 +73,11 @@ export function SolanaTransfer() {
 
       const signedTransaction = await signTransaction(transaction);
       const signature = await sendTransaction(signedTransaction, connection);
-      console.log(`Transaction signature: ${signature}`);
+      const link = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
+      console.log(`You can view your transaction on Solana Explorer at:\n${link}`);
 
       // Show success toast
-      toast.success("Transaction sent successfully!", {
+      toast.success(<SuccessMessage explorerLink={link} transactionMessage={"Transaction Submitted"} />, {
         duration: 3000, // 3 seconds
       });
 

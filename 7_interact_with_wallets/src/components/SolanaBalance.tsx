@@ -4,7 +4,7 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
-function SolanaBalance() {
+export default function SolanaBalance() {
   const { publicKey } = useWallet();
   const { connection } = useConnection();
 
@@ -32,5 +32,3 @@ function SolanaBalance() {
     </CardHeader>
   );
 }
-
-export default SolanaBalance;

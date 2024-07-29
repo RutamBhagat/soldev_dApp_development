@@ -16,6 +16,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import SolanaBalance from "./SolanaBalance";
+import SuccessMessage from "./SuccessMessage";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
@@ -114,7 +115,13 @@ export function MintCreation() {
 
       setTokenMint(mintPublicKey.toString());
       setValue("tokenMintAddress", mintPublicKey.toString()); // Update the form state manually
-      toast.success("Token mint created successfully");
+      const link = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
+      console.log(`You can view your transaction on Solana Explorer at:\n${link}`);
+
+      // Show success toast
+      toast.success(<SuccessMessage explorerLink={link} transactionMessage={"Token Mint Created"} />, {
+        duration: 3000, // 3 seconds
+      });
     } catch (error) {
       toast.error("Failed to create token mint");
       console.error(error);
@@ -169,8 +176,14 @@ export function MintCreation() {
         throw new Error("Transaction failed to confirm");
       }
 
-      toast.success("Token account created successfully");
       console.log("Associated Token Account:", associatedTokenAddress.toString());
+      const link = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
+      console.log(`You can view your transaction on Solana Explorer at:\n${link}`);
+
+      // Show success toast
+      toast.success(<SuccessMessage explorerLink={link} transactionMessage={"Token Account Created"} />, {
+        duration: 3000, // 3 seconds
+      });
     } catch (error) {
       if (error instanceof Error && error.message.includes("TokenAccountNotFoundError")) {
         toast.info("Token account already exists");

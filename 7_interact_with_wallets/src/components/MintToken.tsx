@@ -14,6 +14,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import SolanaBalance from "./SolanaBalance";
+import SuccessMessage from "./SuccessMessage";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
@@ -108,7 +109,13 @@ export function MintToken() {
         confirmOptions.commitment
       );
 
-      toast.success("Tokens minted successfully");
+      const link = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
+      console.log(`You can view your transaction on Solana Explorer at:\n${link}`);
+
+      // Show success toast
+      toast.success(<SuccessMessage explorerLink={link} transactionMessage={"Tokens Minted"} />, {
+        duration: 3000, // 3 seconds
+      });
       reset();
     } catch (error) {
       console.error("Transaction failed:", error);
