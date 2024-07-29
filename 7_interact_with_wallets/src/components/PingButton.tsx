@@ -41,7 +41,7 @@ export const PingButton: FC = () => {
       .then((signature) => {
         const link = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
         console.log(`You can view your transaction on Solana Explorer at:\n${link}`);
-        toast.success(<SuccessMessage explorerLink={link} />, {
+        toast.success(<SuccessMessage explorerLink={link} transactionMessage="Ping Successful!" />, {
           duration: 3000, // 3 seconds
         });
       })
