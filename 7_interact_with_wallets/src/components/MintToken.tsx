@@ -3,6 +3,7 @@
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccountInstruction,
   createMintToInstruction,
   getAssociatedTokenAddress,
   getMint,
@@ -22,7 +23,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const amountSchema = z.string().regex(/^\d*\.?\d*$/, { message: "Invalid amount format" });
+const amountSchema = z.number().int().positive({ message: "Amount must be a positive integer" });
 const addressSchema = z.string().refine(
   (value) => {
     try {
@@ -56,10 +57,6 @@ export function MintToken() {
     resolver: zodResolver(mintTokenSchema),
   });
 
-  const [tokenMint, setTokenMint] = useState<string | null>(null);
-  const [recipientAddress, setRecipientAddress] = useState<string | null>(null);
-  const [amount, setAmount] = useState<string | null>(null);
-
   const onSubmit = async (data: MintTokenSchema) => {
     if (!publicKey || !signTransaction || !sendTransaction) {
       toast.error("Wallet not connected");
@@ -75,7 +72,7 @@ export function MintToken() {
       const decimals = mintInfo.decimals;
 
       // Calculate the amount to mint using the correct decimals
-      const amountToMint = parseFloat(data.amount) * Math.pow(10, decimals);
+      const amountToMint = Math.floor(data.amount * Math.pow(10, decimals));
 
       const associatedTokenAddress = await getAssociatedTokenAddress(
         tokenMintPublicKey,
@@ -85,12 +82,32 @@ export function MintToken() {
         ASSOCIATED_TOKEN_PROGRAM_ID
       );
 
-      const transaction = new Transaction().add(
+      // Create a transaction
+      const transaction = new Transaction();
+
+      // Check if the associated token account exists
+      const associatedTokenAccountInfo = await connection.getAccountInfo(associatedTokenAddress);
+      if (!associatedTokenAccountInfo) {
+        // If it doesn't exist, create it
+        transaction.add(
+          createAssociatedTokenAccountInstruction(
+            publicKey, // payer
+            associatedTokenAddress, // associated token account
+            recipientPublicKey, // owner
+            tokenMintPublicKey, // mint
+            TOKEN_PROGRAM_ID,
+            ASSOCIATED_TOKEN_PROGRAM_ID
+          )
+        );
+      }
+
+      // Add the mint instruction
+      transaction.add(
         createMintToInstruction(
           tokenMintPublicKey,
           associatedTokenAddress,
           publicKey,
-          amountToMint,
+          BigInt(amountToMint),
           [],
           TOKEN_PROGRAM_ID
         )
@@ -136,7 +153,6 @@ export function MintToken() {
             placeholder="EB9oi8BZA5RkKxd7VzwUt6JQF2W2UNniCzBj7T3gx44P"
             {...register("tokenMintAddress")}
             className={errors.tokenMintAddress ? "border-red-500" : ""}
-            onChange={(e) => setTokenMint(e.target.value)}
           />
           {errors.tokenMintAddress && <span className="text-red-500">{errors.tokenMintAddress.message}</span>}
         </div>
@@ -147,7 +163,6 @@ export function MintToken() {
             placeholder="JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd"
             {...register("recipientAddress")}
             className={errors.recipientAddress ? "border-red-500" : ""}
-            onChange={(e) => setRecipientAddress(e.target.value)}
           />
           {errors.recipientAddress && <span className="text-red-500">{errors.recipientAddress.message}</span>}
         </div>
@@ -155,10 +170,9 @@ export function MintToken() {
           <Label htmlFor="amount">Amount of tokens to mint</Label>
           <Input
             id="amount"
-            placeholder="0.01"
-            {...register("amount")}
+            placeholder="100"
+            {...register("amount", { valueAsNumber: true })}
             className={errors.amount ? "border-red-500" : ""}
-            onChange={(e) => setAmount(e.target.value)}
           />
           {errors.amount && <span className="text-red-500">{errors.amount.message}</span>}
         </div>
