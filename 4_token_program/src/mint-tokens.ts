@@ -1,12 +1,14 @@
 import "dotenv/config";
-import { mintTo } from "@solana/spl-token";
+
+import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import {
   getExplorerLink,
   getKeypairFromEnvironment,
 } from "@solana-developers/helpers";
-import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 
-const connection = new Connection(clusterApiUrl("devnet"), {commitment: "confirmed"});{
+import { mintTo } from "@solana/spl-token";
+
+const connection = new Connection(clusterApiUrl("devnet"), {
   commitment: "confirmed",
 });
 
