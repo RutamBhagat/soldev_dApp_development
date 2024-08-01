@@ -1,3 +1,5 @@
+"use client";
+
 import { CardDescription, CardHeader, CardTitle } from "./ui/card";
 import React, { useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";

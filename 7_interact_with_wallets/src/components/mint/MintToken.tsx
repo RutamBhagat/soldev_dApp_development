@@ -8,18 +8,16 @@ import {
   getAssociatedTokenAddress,
   getMint,
 } from "@solana/spl-token";
-import { Card, CardContent, CardFooter } from "./ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { ConfirmOptions, PublicKey, Transaction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import SolanaBalance from "./SolanaBalance";
-import SuccessMessage from "./SuccessMessage";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import SuccessMessage from "../SuccessMessage";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -144,8 +142,7 @@ export function MintToken() {
 
   return (
     <Card>
-      <SolanaBalance />
-      <CardContent className="grid gap-6">
+      <CardContent className="grid gap-6 pt-6">
         <div className="grid gap-2 md:min-w-[500px]">
           <Label htmlFor="token-mint">Token Mint</Label>
           <Input
