@@ -42,7 +42,7 @@ const mintTokenSchema = z.object({
 
 type MintTokenSchema = z.infer<typeof mintTokenSchema>;
 
-export function MintToken() {
+export function MintToken({ setMintAddress }: { setMintAddress: React.Dispatch<React.SetStateAction<string>> }) {
   const { publicKey, sendTransaction, signTransaction } = useWallet();
   const { connection } = useConnection();
 
@@ -148,7 +148,9 @@ export function MintToken() {
           <Input
             id="token-mint"
             placeholder="EB9oi8BZA5RkKxd7VzwUt6JQF2W2UNniCzBj7T3gx44P"
-            {...register("tokenMintAddress")}
+            {...register("tokenMintAddress", {
+              onChange: (e) => setMintAddress(e.target.value),
+            })}
             className={errors.tokenMintAddress ? "border-red-500" : ""}
           />
           {errors.tokenMintAddress && <span className="text-red-500">{errors.tokenMintAddress.message}</span>}

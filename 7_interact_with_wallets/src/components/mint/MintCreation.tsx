@@ -11,6 +11,7 @@ import {
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Keypair, PublicKey, SystemProgram, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,6 @@ import { Label } from "@/components/ui/label";
 import SuccessMessage from "../SuccessMessage";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -41,7 +41,7 @@ const mintCreationSchema = z.object({
 
 type MintCreationSchema = z.infer<typeof mintCreationSchema>;
 
-export function MintCreation() {
+export function MintCreation({ setMintAddress }: { setMintAddress: React.Dispatch<React.SetStateAction<string>> }) {
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
 
@@ -57,6 +57,12 @@ export function MintCreation() {
 
   const [tokenMint, setTokenMint] = useState<string | null>(null);
   const [tokenAccountOwner, setTokenAccountOwner] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (tokenMint) {
+      setMintAddress(tokenMint);
+    }
+  }, [tokenMint, setMintAddress]);
 
   const createMint = async () => {
     if (!publicKey) {
@@ -110,6 +116,7 @@ export function MintCreation() {
       }
 
       setTokenMint(mintPublicKey.toString());
+      setMintAddress(mintPublicKey.toString());
       setValue("tokenMintAddress", mintPublicKey.toString()); // Update the form state manually
       const link = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
       console.log(`You can view your transaction on Solana Explorer at:\n${link}`);
