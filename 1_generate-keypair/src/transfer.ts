@@ -1,7 +1,8 @@
 import "dotenv/config";
 
+import { Connection, PublicKey, SystemProgram, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
+
 import { getKeypairFromEnvironment } from "@solana-developers/helpers";
-import { Connection, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
 
 const suppliedToPubkey = process.argv[2] || null;
 
@@ -10,7 +11,7 @@ if (!suppliedToPubkey) {
   process.exit(1);
 }
 
-const senderKeypair = getKeypairFromEnvironment("SECRET_KEY");
+const senderKeypair = getKeypairFromEnvironment("PRIVATE_KEY");
 
 console.log(`suppliedToPubkey: ${suppliedToPubkey}`);
 

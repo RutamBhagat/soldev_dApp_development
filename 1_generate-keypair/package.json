@@ -3,9 +3,9 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "balance": "bun src/balance.ts",
-    "generate": "bun src/generate.ts",
-    "get_public_key": "bun src/get_public_key.ts",
+    "balance": "bun src/check-balance.ts",
+    "get-keypair": "bun src/get-keypair.ts",
+    "generate": "bun src/generate-keypair.ts",
     "transfer": "bun src/transfer.ts"
   },
   "devDependencies": {
