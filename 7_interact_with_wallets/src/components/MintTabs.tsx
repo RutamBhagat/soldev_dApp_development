@@ -9,7 +9,7 @@ import SolanaBalance from "./SolanaBalance";
 import { useState } from "react";
 
 export function MintTabs() {
-  const [mintAddress, setMintAddress] = useState("");
+  const [mintAddress, setMintAddress] = useState("DCcV7CCDcTeoZwmPph4wqJsobCeN9QMZkYH7WzVy8Z6X");
   return (
     <Tabs defaultValue="mint-creation" className="w-[400px]">
       <SolanaBalance />
@@ -19,10 +19,10 @@ export function MintTabs() {
         <TabsTrigger value="mint-token">Mint Token</TabsTrigger>
       </TabsList>
       <TabsContent value="mint-creation">
-        <MintCreation setMintAddress={setMintAddress} />
+        <MintCreation mintAddress={mintAddress} setMintAddress={setMintAddress} />
       </TabsContent>
       <TabsContent value="mint-token">
-        <MintToken setMintAddress={setMintAddress} />
+        <MintToken mintAddress={mintAddress} setMintAddress={setMintAddress} />
       </TabsContent>
     </Tabs>
   );

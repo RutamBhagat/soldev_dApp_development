@@ -42,7 +42,13 @@ const mintTokenSchema = z.object({
 
 type MintTokenSchema = z.infer<typeof mintTokenSchema>;
 
-export function MintToken({ setMintAddress }: { setMintAddress: React.Dispatch<React.SetStateAction<string>> }) {
+export function MintToken({
+  mintAddress,
+  setMintAddress,
+}: {
+  mintAddress: string;
+  setMintAddress: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const { publicKey, sendTransaction, signTransaction } = useWallet();
   const { connection } = useConnection();
 
@@ -53,6 +59,9 @@ export function MintToken({ setMintAddress }: { setMintAddress: React.Dispatch<R
     reset,
   } = useForm<MintTokenSchema>({
     resolver: zodResolver(mintTokenSchema),
+    defaultValues: {
+      tokenMintAddress: mintAddress || "",
+    },
   });
 
   const onSubmit = async (data: MintTokenSchema) => {
