@@ -61,6 +61,7 @@ export function MintToken({
     resolver: zodResolver(mintTokenSchema),
     defaultValues: {
       tokenMintAddress: mintAddress || "",
+      amount: 1,
     },
   });
 

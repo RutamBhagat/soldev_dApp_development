@@ -57,6 +57,7 @@ export function BurnToken({
     resolver: zodResolver(burnTokenSchema),
     defaultValues: {
       tokenMintAddress: mintAddress || "",
+      amount: 1,
     },
   });
 

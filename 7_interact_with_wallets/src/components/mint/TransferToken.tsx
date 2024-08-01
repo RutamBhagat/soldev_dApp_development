@@ -62,6 +62,7 @@ export function TransferToken({
     resolver: zodResolver(transferTokenSchema),
     defaultValues: {
       tokenMintAddress: mintAddress || "",
+      amount: 1,
     },
   });
 

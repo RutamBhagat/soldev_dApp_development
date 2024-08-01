@@ -58,6 +58,7 @@ export function DelegateToken({
     resolver: zodResolver(delegateTokenSchema),
     defaultValues: {
       tokenMintAddress: mintAddress || "",
+      amount: 1,
     },
   });
 
