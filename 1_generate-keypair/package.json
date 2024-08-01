@@ -6,7 +6,8 @@
     "balance": "bun src/check-balance.ts",
     "get-keypair": "bun src/get-keypair.ts",
     "generate": "bun src/generate-keypair.ts",
-    "transfer": "bun src/transfer.ts"
+    "transfer": "bun src/transfer.ts",
+    "wallet": "bun src/wallet.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
