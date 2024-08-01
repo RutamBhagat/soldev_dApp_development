@@ -1,11 +1,12 @@
 import "dotenv/config";
 
+import { Connection, clusterApiUrl } from "@solana/web3.js";
 import {
   getExplorerLink,
   getKeypairFromEnvironment,
 } from "@solana-developers/helpers";
+
 import { createMint } from "@solana/spl-token";
-import { Connection, clusterApiUrl } from "@solana/web3.js";
 
 const connection = new Connection(clusterApiUrl("devnet"), {
   commitment: "confirmed",
