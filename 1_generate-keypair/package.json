@@ -2,6 +2,12 @@
   "name": "1_generate-keypair",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "balance": "bun src/balance.ts",
+    "generate": "bun src/generate.ts",
+    "get_public_key": "bun src/get_public_key.ts",
+    "transfer": "bun src/transfer.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
