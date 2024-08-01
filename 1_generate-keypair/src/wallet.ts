@@ -22,10 +22,10 @@ async function main() {
         name: "option",
         message: "Choose an option:",
         choices: [
-          { name: "Utils", value: "1" },
-          { name: "Create New Keypair", value: "2" },
-          { name: "Request Airdrop", value: "3" },
-          { name: "Send SOL", value: "4" },
+          { name: "Create New Keypair", value: "1" },
+          { name: "Request Airdrop", value: "2" },
+          { name: "Send SOL", value: "3" },
+          { name: "Utils", value: "4" },
           { name: "Exit", value: "5" },
         ],
       },
@@ -35,13 +35,13 @@ async function main() {
     const { option } = await inquirer.prompt(mainQuestion);
 
     if (option === "1") {
-      await handleUtils();
-    } else if (option === "2") {
       await handleCreateNewKeypair();
-    } else if (option === "3") {
+    } else if (option === "2") {
       await handleRequestAirdrop(connection);
-    } else if (option === "4") {
+    } else if (option === "3") {
       await handleSendSOL(connection);
+    } else if (option === "4") {
+      await handleUtils();
     } else if (option === "5") {
       console.log("Exiting the program. Goodbye!");
       break;
