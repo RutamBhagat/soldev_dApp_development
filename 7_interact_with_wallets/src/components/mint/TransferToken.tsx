@@ -155,6 +155,10 @@ export function TransferToken({
           {errors.tokenMintAddress && <span className="text-red-500">{errors.tokenMintAddress.message}</span>}
         </div>
         <div className="grid gap-2 md:min-w-[500px]">
+          <Label htmlFor="from-address">From Address</Label>
+          <Input id="from-address" value={publicKey?.toString() || ""} disabled />
+        </div>
+        <div className="grid gap-2 md:min-w-[500px]">
           <Label htmlFor="to-address">To Address</Label>
           <Input
             id="to-address"
