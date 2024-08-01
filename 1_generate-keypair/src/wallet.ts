@@ -13,8 +13,12 @@ import inquirer from "inquirer";
 
 // Function to convert base58 private key to Keypair
 function base58ToKeypair(base58PrivateKey: string): Keypair {
-  const privateKeyBuffer = bs58.decode(base58PrivateKey);
-  return Keypair.fromSecretKey(privateKeyBuffer);
+  try {
+    const privateKeyBuffer = bs58.decode(base58PrivateKey);
+    return Keypair.fromSecretKey(privateKeyBuffer);
+  } catch (error) {
+    throw new Error("Invalid Base58 private key");
+  }
 }
 
 // Function to convert Keypair to base58 private key
@@ -29,6 +33,9 @@ function createNewKeypair(): Keypair {
 
 // Function to request an airdrop
 async function requestAirdrop(connection: Connection, publicKey: PublicKey, amount: number): Promise<string> {
+  if (amount <= 0 || amount > 2) {
+    throw new Error("Airdrop amount must be between 0 and 2 SOL");
+  }
   const signature = await connection.requestAirdrop(publicKey, amount * LAMPORTS_PER_SOL);
   await connection.confirmTransaction(signature);
   return signature;
@@ -36,6 +43,15 @@ async function requestAirdrop(connection: Connection, publicKey: PublicKey, amou
 
 // Function to send SOL
 async function sendSOL(connection: Connection, from: Keypair, to: PublicKey, amount: number): Promise<string> {
+  if (amount <= 0) {
+    throw new Error("Amount must be greater than 0");
+  }
+
+  const balance = await connection.getBalance(from.publicKey);
+  if (balance < amount * LAMPORTS_PER_SOL) {
+    throw new Error("Insufficient balance");
+  }
+
   const transaction = new Transaction().add(
     SystemProgram.transfer({
       fromPubkey: from.publicKey,
@@ -96,7 +112,7 @@ async function main() {
       // @ts-ignore
       const { base58PrivateKey } = await inquirer.prompt(questionA);
       try {
-        const keypair = base58ToKeypair(base58PrivateKey);
+        const keypair = base58ToKeypair(base58PrivateKey.trim());
         console.log(`Public Key: ${keypair.publicKey.toBase58()}`);
         const secretKeyArray = Array.from(keypair.secretKey);
         const formattedSecretKey = JSON.stringify(secretKeyArray).replace(/,/g, ", ");
@@ -117,6 +133,10 @@ async function main() {
       const { secretKeyInput } = await inquirer.prompt(questionB);
       const cleanedSecretKeyInput = secretKeyInput.replace(/[\[\]]/g, "");
       const secretKeyArray = cleanedSecretKeyInput.split(",").map((num: string) => parseInt(num.trim(), 10));
+      if (secretKeyArray.length !== 64) {
+        console.error("Error: Invalid secret key array length. Expected 64 numbers.");
+        return;
+      }
       try {
         const keypair = Keypair.fromSecretKey(new Uint8Array(secretKeyArray));
         const base58PrivateKey = keypairToBase58(keypair);
@@ -142,17 +162,18 @@ async function main() {
         type: "number",
         name: "amount",
         message: "Enter the amount of SOL to request (max 2):",
-        validate: (value: number) => value <= 2 || "Maximum airdrop amount is 2 SOL",
+        validate: (value: number) => (value > 0 && value <= 2) || "Airdrop amount must be between 0 and 2 SOL",
       },
     ];
     // @ts-ignore
     const { publicKey, amount } = await inquirer.prompt(airdropQuestions);
     try {
-      const signature = await requestAirdrop(connection, new PublicKey(publicKey), amount);
+      const publicKeyObj = new PublicKey(publicKey.trim());
+      const signature = await requestAirdrop(connection, publicKeyObj, amount);
       console.log(`Airdrop successful. Transaction signature: ${signature}`);
     } catch (error) {
       // @ts-ignore
-      console.error("Error requesting airdrop: " + error.message);
+      console.error("Invalid public key or airdrop failed: " + error.message);
     }
   } else if (option === "4") {
     const sendSOLQuestions = [
@@ -170,13 +191,14 @@ async function main() {
         type: "number",
         name: "amount",
         message: "Enter the amount of SOL to send:",
+        validate: (value: number) => value > 0 || "Amount must be greater than 0",
       },
     ];
     // @ts-ignore
     const { fromPrivateKey, toPublicKey, amount } = await inquirer.prompt(sendSOLQuestions);
     try {
-      const fromKeypair = base58ToKeypair(fromPrivateKey);
-      const toPublicKeyObj = new PublicKey(toPublicKey);
+      const fromKeypair = base58ToKeypair(fromPrivateKey.trim());
+      const toPublicKeyObj = new PublicKey(toPublicKey.trim());
       const signature = await sendSOL(connection, fromKeypair, toPublicKeyObj, amount);
       console.log(`Transaction successful. Signature: ${signature}`);
     } catch (error) {
