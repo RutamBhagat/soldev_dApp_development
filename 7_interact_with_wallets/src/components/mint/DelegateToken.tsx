@@ -1,10 +1,10 @@
 "use client";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { DelegateTokenSchema, delegateTokenSchema } from "@/types/ZDelegateToken";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID, createApproveInstruction, getAssociatedTokenAddress, getMint } from "@solana/spl-token";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,29 +12,7 @@ import { Label } from "@/components/ui/label";
 import { SuccessMessage } from "../SuccessMessage";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-const amountSchema = z.number().int().positive({ message: "Amount must be a positive integer" });
-const addressSchema = z.string().refine(
-  (value) => {
-    try {
-      new PublicKey(value);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  },
-  { message: "Invalid Solana address format" }
-);
-
-const delegateTokenSchema = z.object({
-  tokenMintAddress: addressSchema,
-  delegateAddress: addressSchema,
-  amount: amountSchema,
-});
-
-type DelegateTokenSchema = z.infer<typeof delegateTokenSchema>;
 
 export function DelegateToken({
   mintAddress,
@@ -45,7 +23,6 @@ export function DelegateToken({
 }) {
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
-  const [decimals, setDecimals] = useState<number>(0);
 
   const {
     register,
@@ -59,23 +36,6 @@ export function DelegateToken({
       amount: 1,
     },
   });
-
-  useEffect(() => {
-    const fetchDecimals = async () => {
-      if (mintAddress) {
-        try {
-          const mintPublicKey = new PublicKey(mintAddress);
-          const mintInfo = await getMint(connection, mintPublicKey);
-          setDecimals(mintInfo.decimals);
-        } catch (error) {
-          console.error("Error fetching decimals:", error);
-          toast.error("Failed to fetch token decimals");
-        }
-      }
-    };
-
-    fetchDecimals();
-  }, [mintAddress, connection]);
 
   const onSubmit = async (data: DelegateTokenSchema) => {
     if (!publicKey) {
@@ -91,7 +51,8 @@ export function DelegateToken({
       const associatedTokenAddress = await getAssociatedTokenAddress(mintPublicKey, publicKey, false, TOKEN_PROGRAM_ID);
 
       // Calculate the amount to delegate using the correct decimals
-      const amountToDelegate = BigInt(Math.floor(data.amount * Math.pow(10, decimals)));
+      const mintInfo = await getMint(connection, mintPublicKey);
+      const amountToDelegate = BigInt(Math.floor(data.amount * Math.pow(10, mintInfo.decimals)));
 
       const transaction = new Transaction();
 
