@@ -11,7 +11,6 @@ import {
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Keypair, PublicKey, SystemProgram, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import SuccessMessage from "../SuccessMessage";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -55,7 +55,6 @@ export function MintCreation({
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
     setValue,
   } = useForm<MintCreationSchema>({
     resolver: zodResolver(mintCreationSchema),
@@ -66,12 +65,6 @@ export function MintCreation({
 
   const [tokenMint, setTokenMint] = useState<string | null>(null);
   const [tokenAccountOwner, setTokenAccountOwner] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (tokenMint) {
-      setMintAddress(tokenMint);
-    }
-  }, [tokenMint, setMintAddress]);
 
   const createMint = async () => {
     if (!publicKey) {
@@ -214,9 +207,10 @@ export function MintCreation({
           <Input
             id="token-mint"
             placeholder="EB9oi8BZA5RkKxd7VzwUt6JQF2W2UNniCzBj7T3gx44P"
-            {...register("tokenMintAddress")}
+            {...register("tokenMintAddress", {
+              onChange: (e) => setMintAddress(e.target.value),
+            })}
             className={errors.tokenMintAddress ? "border-red-500" : ""}
-            onChange={(e) => setTokenMint(e.target.value)}
           />
           {errors.tokenMintAddress && <span className="text-red-500">{errors.tokenMintAddress.message}</span>}
         </div>

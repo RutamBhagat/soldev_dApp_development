@@ -52,8 +52,6 @@ export function DelegateToken({
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    setValue,
-    watch,
   } = useForm<DelegateTokenSchema>({
     resolver: zodResolver(delegateTokenSchema),
     defaultValues: {
@@ -62,19 +60,11 @@ export function DelegateToken({
     },
   });
 
-  const watchedMintAddress = watch("tokenMintAddress");
-
-  useEffect(() => {
-    if (mintAddress) {
-      setValue("tokenMintAddress", mintAddress);
-    }
-  }, [mintAddress, setValue]);
-
   useEffect(() => {
     const fetchDecimals = async () => {
-      if (watchedMintAddress) {
+      if (mintAddress) {
         try {
-          const mintPublicKey = new PublicKey(watchedMintAddress);
+          const mintPublicKey = new PublicKey(mintAddress);
           const mintInfo = await getMint(connection, mintPublicKey);
           setDecimals(mintInfo.decimals);
         } catch (error) {
@@ -85,7 +75,7 @@ export function DelegateToken({
     };
 
     fetchDecimals();
-  }, [watchedMintAddress, connection]);
+  }, [mintAddress, connection]);
 
   const onSubmit = async (data: DelegateTokenSchema) => {
     if (!publicKey) {
@@ -147,9 +137,10 @@ export function DelegateToken({
           <Input
             id="token-mint"
             placeholder="EB9oi8BZA5RkKxd7VzwUt6JQF2W2UNniCzBj7T3gx44P"
-            {...register("tokenMintAddress")}
+            {...register("tokenMintAddress", {
+              onChange: (e) => setMintAddress(e.target.value),
+            })}
             className={errors.tokenMintAddress ? "border-red-500" : ""}
-            onChange={(e) => setMintAddress(e.target.value)}
           />
           {errors.tokenMintAddress && <span className="text-red-500">{errors.tokenMintAddress.message}</span>}
         </div>

@@ -8,9 +8,8 @@ import {
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,7 +56,6 @@ export function TransferToken({
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    setValue,
   } = useForm<TransferTokenSchema>({
     resolver: zodResolver(transferTokenSchema),
     defaultValues: {
@@ -65,12 +63,6 @@ export function TransferToken({
       amount: 1,
     },
   });
-
-  useEffect(() => {
-    if (mintAddress) {
-      setValue("tokenMintAddress", mintAddress);
-    }
-  }, [mintAddress, setValue]);
 
   const onSubmit = async (data: TransferTokenSchema) => {
     if (!publicKey) {
@@ -149,9 +141,10 @@ export function TransferToken({
           <Input
             id="token-mint"
             placeholder="EB9oi8BZA5RkKxd7VzwUt6JQF2W2UNniCzBj7T3gx44P"
-            {...register("tokenMintAddress")}
+            {...register("tokenMintAddress", {
+              onChange: (e) => setMintAddress(e.target.value),
+            })}
             className={errors.tokenMintAddress ? "border-red-500" : ""}
-            onChange={(e) => setMintAddress(e.target.value)}
           />
           {errors.tokenMintAddress && <span className="text-red-500">{errors.tokenMintAddress.message}</span>}
         </div>

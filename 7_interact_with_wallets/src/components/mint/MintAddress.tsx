@@ -32,7 +32,7 @@ export default function MintAddress({ mintAddress }: { mintAddress: string }) {
           <CardTitle>Mint Address</CardTitle>
           <CardDescription>{mintAddress}</CardDescription>
           <button
-            className="absolute top-2 text-gray-800 right-3 text-slate-200 hover:text-gray-600 cursor-pointer"
+            className="absolute top-2 text-gray-800 right-3 hover:text-gray-600 cursor-pointer"
             onClick={handleCopy}
           >
             {copied ? <MdLibraryAddCheck size={20} /> : <MdContentCopy size={20} />}
