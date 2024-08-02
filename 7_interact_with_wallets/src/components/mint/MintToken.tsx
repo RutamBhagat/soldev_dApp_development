@@ -10,37 +10,16 @@ import {
 } from "@solana/spl-token";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { ConfirmOptions, PublicKey, Transaction } from "@solana/web3.js";
+import { MintTokenSchema, mintTokenSchema } from "@/types/ZMintToken";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import SuccessMessage from "../SuccessMessage";
+import { SuccessMessage } from "../SuccessMessage";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-const amountSchema = z.number().int().positive({ message: "Amount must be a positive integer" });
-const addressSchema = z.string().refine(
-  (value) => {
-    try {
-      new PublicKey(value);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  },
-  { message: "Invalid Solana address format" }
-);
-
-const mintTokenSchema = z.object({
-  amount: amountSchema,
-  tokenMintAddress: addressSchema,
-  recipientAddress: addressSchema,
-});
-
-type MintTokenSchema = z.infer<typeof mintTokenSchema>;
 
 export function MintToken({
   mintAddress,

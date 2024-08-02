@@ -1,7 +1,7 @@
 import React from "react";
 import { toast } from "sonner";
 
-export default function SuccessMessage({
+export function SuccessMessage({
   explorerLink,
   transactionMessage,
 }: {

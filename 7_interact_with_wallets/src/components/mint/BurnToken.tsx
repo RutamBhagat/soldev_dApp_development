@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import SuccessMessage from "../SuccessMessage";
+import { SuccessMessage } from "../SuccessMessage";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
