@@ -47,7 +47,7 @@ export function BurnToken({
       const mintPublicKey = new PublicKey(data.tokenMintAddress);
 
       // Get the associated token account for the connected wallet
-      const associatedTokenAddress = await getAssociatedTokenAddress(mintPublicKey, publicKey, false, TOKEN_PROGRAM_ID);
+      const associatedTokenAddress = await getAssociatedTokenAddress(mintPublicKey, publicKey);
 
       // Calculate the amount to burn using the correct decimals
       const mintInfo = await getMint(connection, mintPublicKey);
@@ -56,9 +56,7 @@ export function BurnToken({
       const transaction = new Transaction();
 
       // Add the burn instruction
-      transaction.add(
-        createBurnInstruction(associatedTokenAddress, mintPublicKey, publicKey, amountToBurn, [], TOKEN_PROGRAM_ID)
-      );
+      transaction.add(createBurnInstruction(associatedTokenAddress, mintPublicKey, publicKey, amountToBurn));
 
       // Send the transaction
       const signature = await sendTransaction(transaction, connection);

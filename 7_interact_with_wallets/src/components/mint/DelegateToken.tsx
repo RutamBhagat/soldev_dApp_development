@@ -48,7 +48,7 @@ export function DelegateToken({
       const delegatePublicKey = new PublicKey(data.delegateAddress);
 
       // Get the associated token account for the connected wallet
-      const associatedTokenAddress = await getAssociatedTokenAddress(mintPublicKey, publicKey, false, TOKEN_PROGRAM_ID);
+      const associatedTokenAddress = await getAssociatedTokenAddress(mintPublicKey, publicKey);
 
       // Calculate the amount to delegate using the correct decimals
       const mintInfo = await getMint(connection, mintPublicKey);
