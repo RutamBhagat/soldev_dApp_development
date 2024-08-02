@@ -38,9 +38,7 @@ export default function MintAddress({ mintAddress }: { mintAddress: string }) {
             {copied ? <MdLibraryAddCheck size={20} /> : <MdContentCopy size={20} />}
           </button>
         </CardHeader>
-      ) : (
-        <></>
-      )}
+      ) : null}
     </>
   );
 }

@@ -10,6 +10,7 @@ import {
 } from "@solana/spl-token";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Keypair, PublicKey, SystemProgram, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
+import { MintCreationSchema, mintCreationSchema } from "@/types/ZMintCreation";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { Button } from "@/components/ui/button";
@@ -18,28 +19,7 @@ import { Label } from "@/components/ui/label";
 import { SuccessMessage } from "../SuccessMessage";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-const addressSchema = z.string().refine(
-  (value) => {
-    try {
-      new PublicKey(value);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  },
-  { message: "Invalid Solana address format" }
-);
-
-const mintCreationSchema = z.object({
-  tokenMintAddress: addressSchema.optional(),
-  ownerAddress: addressSchema.optional(),
-});
-
-type MintCreationSchema = z.infer<typeof mintCreationSchema>;
 
 export function MintCreation({
   mintAddress,
@@ -62,9 +42,6 @@ export function MintCreation({
       tokenMintAddress: mintAddress || "",
     },
   });
-
-  const [tokenMint, setTokenMint] = useState<string | null>(null);
-  const [tokenAccountOwner, setTokenAccountOwner] = useState<string | null>(null);
 
   const createMint = async () => {
     if (!publicKey) {
@@ -117,7 +94,6 @@ export function MintCreation({
         throw new Error("Transaction failed to confirm");
       }
 
-      setTokenMint(mintPublicKey.toString());
       setMintAddress(mintPublicKey.toString());
       setValue("tokenMintAddress", mintPublicKey.toString()); // Update the form state manually
       const link = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
@@ -134,14 +110,14 @@ export function MintCreation({
   };
 
   const createTokenAccount = async (data: MintCreationSchema) => {
-    if (!publicKey || !tokenMint || !tokenAccountOwner) {
+    if (!publicKey || !data.tokenMintAddress || !data.ownerAddress) {
       toast.error("Invalid input");
       return;
     }
 
     try {
-      const tokenMintPublicKey = new PublicKey(tokenMint);
-      const tokenAccountOwnerPublicKey = new PublicKey(tokenAccountOwner);
+      const tokenMintPublicKey = new PublicKey(data.tokenMintAddress);
+      const tokenAccountOwnerPublicKey = new PublicKey(data.ownerAddress);
 
       const associatedTokenAddress = await getAssociatedTokenAddress(
         tokenMintPublicKey,
@@ -221,7 +197,6 @@ export function MintCreation({
             placeholder="JCZjJcmuWidrj5DwuJBxwqHx7zRfiBAp6nCLq3zYmBxd"
             {...register("ownerAddress")}
             className={errors.ownerAddress ? "border-red-500" : ""}
-            onChange={(e) => setTokenAccountOwner(e.target.value)}
           />
           {errors.ownerAddress && <span className="text-red-500">{errors.ownerAddress.message}</span>}
         </div>
