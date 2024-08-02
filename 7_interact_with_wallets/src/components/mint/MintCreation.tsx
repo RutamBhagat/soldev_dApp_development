@@ -122,9 +122,6 @@ export function MintCreation({
       const associatedTokenAddress = await getAssociatedTokenAddress(
         tokenMintPublicKey,
         tokenAccountOwnerPublicKey,
-        false,
-        TOKEN_PROGRAM_ID,
-        ASSOCIATED_TOKEN_PROGRAM_ID
       );
 
       const instruction = createAssociatedTokenAccountInstruction(

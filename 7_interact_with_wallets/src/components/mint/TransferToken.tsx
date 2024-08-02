@@ -6,9 +6,11 @@ import {
   createAssociatedTokenAccountInstruction,
   createTransferInstruction,
   getAssociatedTokenAddress,
+  getMint,
 } from "@solana/spl-token";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { PublicKey, Transaction } from "@solana/web3.js";
+import { TransferTokenSchema, transferTokenSchema } from "@/types/ZTransferToken";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { Button } from "@/components/ui/button";
@@ -17,29 +19,7 @@ import { Label } from "@/components/ui/label";
 import { SuccessMessage } from "../SuccessMessage";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-const amountSchema = z.number().int().positive({ message: "Amount must be a positive integer" });
-const addressSchema = z.string().refine(
-  (value) => {
-    try {
-      new PublicKey(value);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  },
-  { message: "Invalid Solana address format" }
-);
-
-const transferTokenSchema = z.object({
-  tokenMintAddress: addressSchema,
-  toAddress: addressSchema,
-  amount: amountSchema,
-});
-
-type TransferTokenSchema = z.infer<typeof transferTokenSchema>;
 
 export function TransferToken({
   mintAddress,
@@ -75,20 +55,8 @@ export function TransferToken({
       const toPublicKey = new PublicKey(data.toAddress);
 
       // Get the associated token accounts for the sender and recipient
-      const fromATA = await getAssociatedTokenAddress(
-        mintPublicKey,
-        publicKey,
-        false,
-        TOKEN_PROGRAM_ID,
-        ASSOCIATED_TOKEN_PROGRAM_ID
-      );
-      const toATA = await getAssociatedTokenAddress(
-        mintPublicKey,
-        toPublicKey,
-        false,
-        TOKEN_PROGRAM_ID,
-        ASSOCIATED_TOKEN_PROGRAM_ID
-      );
+      const fromATA = await getAssociatedTokenAddress(mintPublicKey, publicKey);
+      const toATA = await getAssociatedTokenAddress(mintPublicKey, toPublicKey);
 
       const transaction = new Transaction();
 
@@ -96,20 +64,13 @@ export function TransferToken({
       const toAccountInfo = await connection.getAccountInfo(toATA);
       if (!toAccountInfo) {
         // If it doesn't exist, create it
-        transaction.add(
-          createAssociatedTokenAccountInstruction(
-            publicKey,
-            toATA,
-            toPublicKey,
-            mintPublicKey,
-            TOKEN_PROGRAM_ID,
-            ASSOCIATED_TOKEN_PROGRAM_ID
-          )
-        );
+        transaction.add(createAssociatedTokenAccountInstruction(publicKey, toATA, toPublicKey, mintPublicKey));
       }
 
       // Add the transfer instruction
-      transaction.add(createTransferInstruction(fromATA, toATA, publicKey, BigInt(data.amount), [], TOKEN_PROGRAM_ID));
+      const mintInfo = await getMint(connection, mintPublicKey);
+      const amountToTransfer = BigInt(Math.floor(data.amount * Math.pow(10, mintInfo.decimals)));
+      transaction.add(createTransferInstruction(fromATA, toATA, publicKey, amountToTransfer));
 
       // Send the transaction
       const signature = await sendTransaction(transaction, connection);

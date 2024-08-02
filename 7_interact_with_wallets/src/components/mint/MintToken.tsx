@@ -64,9 +64,6 @@ export function MintToken({
       const associatedTokenAddress = await getAssociatedTokenAddress(
         tokenMintPublicKey,
         recipientPublicKey,
-        false,
-        TOKEN_PROGRAM_ID,
-        ASSOCIATED_TOKEN_PROGRAM_ID
       );
 
       // Create a transaction
