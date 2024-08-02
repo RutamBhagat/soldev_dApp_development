@@ -1,5 +1,4 @@
 import { MintTabs } from "@/components/MintTabs";
-import { MintToken } from "@/components/MintToken";
 import { cn } from "@/lib/utils";
 
 function Container({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
