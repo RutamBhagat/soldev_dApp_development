@@ -6,7 +6,7 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { FC } from "react";
 import React from "react";
-import SuccessMessage from "./SuccessMessage";
+import { SuccessMessage } from "./SuccessMessage";
 import { toast } from "sonner";
 
 const PROGRAM_ID = "ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa";

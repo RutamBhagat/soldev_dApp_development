@@ -8,7 +8,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import SolanaBalance from "./SolanaBalance";
-import SuccessMessage from "./SuccessMessage";
+import { SuccessMessage } from "./SuccessMessage";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
