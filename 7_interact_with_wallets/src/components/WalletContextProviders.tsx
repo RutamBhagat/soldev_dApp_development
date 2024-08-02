@@ -21,13 +21,11 @@ export default function WalletContextProviders({
   const wallets = useMemo(() => [], []);
 
   return (
-    <>
+    <ConnectionProvider endpoint={endpoint}>
       <Toaster richColors />
-      <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect={true}>
-          <WalletModalProvider>{children}</WalletModalProvider>
-        </WalletProvider>
-      </ConnectionProvider>
-    </>
+      <WalletProvider wallets={wallets} autoConnect={true}>
+        <WalletModalProvider>{children}</WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
   );
 }

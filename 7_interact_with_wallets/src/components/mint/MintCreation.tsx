@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
   MINT_SIZE,
   TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
@@ -65,10 +64,9 @@ export function MintCreation({
         }),
         createInitializeMintInstruction(
           mintPublicKey,
-          0, // decimals
+          9, // default
           publicKey,
-          publicKey,
-          TOKEN_PROGRAM_ID
+          publicKey
         ),
       ];
 
@@ -119,18 +117,13 @@ export function MintCreation({
       const tokenMintPublicKey = new PublicKey(data.tokenMintAddress);
       const tokenAccountOwnerPublicKey = new PublicKey(data.ownerAddress);
 
-      const associatedTokenAddress = await getAssociatedTokenAddress(
-        tokenMintPublicKey,
-        tokenAccountOwnerPublicKey,
-      );
+      const associatedTokenAddress = await getAssociatedTokenAddress(tokenMintPublicKey, tokenAccountOwnerPublicKey);
 
       const instruction = createAssociatedTokenAccountInstruction(
         publicKey, // payer
         associatedTokenAddress,
         tokenAccountOwnerPublicKey,
-        tokenMintPublicKey,
-        TOKEN_PROGRAM_ID,
-        ASSOCIATED_TOKEN_PROGRAM_ID
+        tokenMintPublicKey
       );
 
       const latestBlockhash = await connection.getLatestBlockhash();

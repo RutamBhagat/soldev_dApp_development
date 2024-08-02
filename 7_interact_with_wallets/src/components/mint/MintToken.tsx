@@ -1,16 +1,14 @@
 "use client";
 
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { ConfirmOptions, PublicKey, Transaction } from "@solana/web3.js";
+import { MintTokenSchema, mintTokenSchema } from "@/types/ZMintToken";
 import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
   createMintToInstruction,
   getAssociatedTokenAddress,
   getMint,
 } from "@solana/spl-token";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { ConfirmOptions, PublicKey, Transaction } from "@solana/web3.js";
-import { MintTokenSchema, mintTokenSchema } from "@/types/ZMintToken";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { Button } from "@/components/ui/button";
@@ -61,10 +59,7 @@ export function MintToken({
       // Calculate the amount to mint using the correct decimals
       const amountToMint = Math.floor(data.amount * Math.pow(10, decimals));
 
-      const associatedTokenAddress = await getAssociatedTokenAddress(
-        tokenMintPublicKey,
-        recipientPublicKey,
-      );
+      const associatedTokenAddress = await getAssociatedTokenAddress(tokenMintPublicKey, recipientPublicKey);
 
       // Create a transaction
       const transaction = new Transaction();
@@ -78,31 +73,17 @@ export function MintToken({
             publicKey, // payer
             associatedTokenAddress, // associated token account
             recipientPublicKey, // owner
-            tokenMintPublicKey, // mint
-            TOKEN_PROGRAM_ID,
-            ASSOCIATED_TOKEN_PROGRAM_ID
+            tokenMintPublicKey // mint
           )
         );
       }
 
       // Add the mint instruction
       transaction.add(
-        createMintToInstruction(
-          tokenMintPublicKey,
-          associatedTokenAddress,
-          publicKey,
-          BigInt(amountToMint),
-          [],
-          TOKEN_PROGRAM_ID
-        )
+        createMintToInstruction(tokenMintPublicKey, associatedTokenAddress, publicKey, BigInt(amountToMint))
       );
 
-      const signature = await sendTransaction(transaction, connection, { signers: [] });
-
-      const confirmOptions: ConfirmOptions = {
-        commitment: "processed",
-        preflightCommitment: "processed",
-      };
+      const signature = await sendTransaction(transaction, connection);
       const latestBlockhash = await connection.getLatestBlockhash();
       await connection.confirmTransaction(
         {
@@ -110,7 +91,7 @@ export function MintToken({
           blockhash: latestBlockhash.blockhash,
           lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
         },
-        confirmOptions.commitment
+        "processed"
       );
 
       const link = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;

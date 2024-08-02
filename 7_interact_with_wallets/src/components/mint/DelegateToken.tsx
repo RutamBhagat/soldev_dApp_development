@@ -3,7 +3,7 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { DelegateTokenSchema, delegateTokenSchema } from "@/types/ZDelegateToken";
 import { PublicKey, Transaction } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, createApproveInstruction, getAssociatedTokenAddress, getMint } from "@solana/spl-token";
+import { createApproveInstruction, getAssociatedTokenAddress, getMint } from "@solana/spl-token";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { Button } from "@/components/ui/button";
@@ -57,16 +57,7 @@ export function DelegateToken({
       const transaction = new Transaction();
 
       // Add the approve (delegate) instruction
-      transaction.add(
-        createApproveInstruction(
-          associatedTokenAddress,
-          delegatePublicKey,
-          publicKey,
-          amountToDelegate,
-          [],
-          TOKEN_PROGRAM_ID
-        )
-      );
+      transaction.add(createApproveInstruction(associatedTokenAddress, delegatePublicKey, publicKey, amountToDelegate));
 
       // Send the transaction
       const signature = await sendTransaction(transaction, connection);

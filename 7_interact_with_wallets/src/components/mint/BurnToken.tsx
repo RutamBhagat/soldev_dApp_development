@@ -3,7 +3,7 @@
 import { BurnTokenSchema, burnTokenSchema } from "@/types/ZBurnToken";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { PublicKey, Transaction } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, createBurnInstruction, getAssociatedTokenAddress, getMint } from "@solana/spl-token";
+import { createBurnInstruction, getAssociatedTokenAddress, getMint } from "@solana/spl-token";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { Button } from "@/components/ui/button";

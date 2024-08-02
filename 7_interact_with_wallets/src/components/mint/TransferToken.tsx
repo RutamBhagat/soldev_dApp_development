@@ -1,16 +1,14 @@
 "use client";
 
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { PublicKey, Transaction } from "@solana/web3.js";
+import { TransferTokenSchema, transferTokenSchema } from "@/types/ZTransferToken";
 import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
   createTransferInstruction,
   getAssociatedTokenAddress,
   getMint,
 } from "@solana/spl-token";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { PublicKey, Transaction } from "@solana/web3.js";
-import { TransferTokenSchema, transferTokenSchema } from "@/types/ZTransferToken";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { Button } from "@/components/ui/button";
